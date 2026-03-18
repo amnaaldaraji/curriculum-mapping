@@ -55,22 +55,6 @@
 
         .wrap { max-width:860px; margin:0 auto; padding:36px 24px 80px; display:flex; flex-direction:column; gap:20px; }
 
-        /* ── CONFIG BANNER ── */
-        .config-banner {
-            background: linear-gradient(135deg, #FFF8EC, #FFF3DC);
-            border: 1.5px solid rgba(181,152,90,.4);
-            border-radius: 8px;
-            padding: 14px 18px;
-            display: flex; align-items: flex-start; gap: 12px;
-        }
-        .config-banner .icon { font-size: 1.1rem; flex-shrink:0; margin-top:1px; }
-        .config-banner .text { font-size:.82rem; color:var(--gray-700); line-height:1.6; }
-        .config-banner .text strong { color:var(--navy); }
-        .config-banner .text code {
-            background: rgba(0,0,0,.07); padding:1px 6px; border-radius:3px;
-            font-family: monospace; font-size:.8rem;
-        }
-
         .card { background:white; border-radius:10px; box-shadow:0 1px 3px rgba(13,33,55,.07),0 4px 16px rgba(13,33,55,.05); overflow:hidden; }
         .card-hdr { padding:18px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
         .card-hdr-num {
@@ -167,23 +151,16 @@
         .btn { font-family:'DM Sans',sans-serif; font-size:.84rem; font-weight:600; padding:11px 24px; border-radius:var(--r); border:none; cursor:pointer; display:inline-flex; align-items:center; gap:7px; transition:all .15s; letter-spacing:.02em; }
         .btn-primary { background:var(--teal); color:white; }
         .btn-primary:hover { background:#005963; transform:translateY(-1px); box-shadow:0 4px 14px rgba(0,109,119,.3); }
-        .btn-navy { background:var(--navy); color:white; }
-        .btn-navy:hover { background:#162d45; transform:translateY(-1px); }
         .btn-ghost { background:var(--gray-100); color:var(--gray-700); border:1.5px solid var(--border); }
         .btn-ghost:hover { background:var(--gray-200); }
         .action-row { display:flex; gap:12px; flex-wrap:wrap; padding:24px 28px; border-top:1px solid var(--border); }
 
-        /* ── SUBMIT STATE ── */
-        .submit-spinner {
-            width:18px; height:18px; border:2px solid rgba(255,255,255,.3);
-            border-top-color:white; border-radius:50%;
-            animation:spin .7s linear infinite; display:none;
-        }
+        .submit-spinner { width:18px; height:18px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; display:none; }
         @keyframes spin { to { transform:rotate(360deg); } }
         .btn-primary.loading .submit-spinner { display:block; }
         .btn-primary.loading .btn-label { opacity:.6; }
 
-        .toast { position:fixed; bottom:24px; right:24px; background:var(--navy); color:white; padding:11px 18px; border-radius:8px; font-size:.82rem; box-shadow:0 8px 24px rgba(0,0,0,.18); border-left:4px solid var(--teal); transform:translateY(80px); opacity:0; transition:all .3s ease; z-index:200; }
+        .toast { position:fixed; bottom:24px; right:24px; background:var(--navy); color:white; padding:11px 18px; border-radius:8px; font-size:.82rem; box-shadow:0 8px 24px rgba(0,0,0,.18); border-left:4px solid var(--teal); transform:translateY(80px); opacity:0; transition:all .3s ease; z-index:200; max-width:320px; }
         .toast.show { transform:translateY(0); opacity:1; }
         .toast.error { border-left-color:#E05858; }
 
@@ -215,15 +192,6 @@
 </header>
 
 <div class="wrap" id="main-wrap">
-
-    <!-- ── SETUP NOTICE (visible until SCRIPT_URL is set) ── -->
-    <div class="config-banner" id="config-banner">
-        <span class="icon">⚙️</span>
-        <div class="text">
-            <strong>Admin setup needed:</strong> Paste your Google Apps Script URL into this file.<br>
-            Find the line <code>const SCRIPT_URL = ""</code> near the top of the &lt;script&gt; and replace it with your deployed Web App URL.
-        </div>
-    </div>
 
     <!-- CARD 1 -->
     <div class="card">
@@ -322,7 +290,6 @@
 
 <script>
     // ─────────────────────────────────────────────────────────────────────────────
-    // ★ PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-o7n5SRjKKLV27vcuBXjBfT0MeMDH0W1SpWByO1KntqtApiJLullB2DcbDWEmeoY/exec";
     // ─────────────────────────────────────────────────────────────────────────────
 
@@ -339,9 +306,6 @@
     const state = {};
     OUTCOMES.forEach((_, i) => { state[i] = { level:'', activities:'', assessment:'' }; });
     let donutChart;
-
-    // Hide config banner if URL is set
-    if (SCRIPT_URL) document.getElementById('config-banner').style.display = 'none';
 
     function renderOutcomes() {
         const wrap = document.getElementById('outcomes-wrap');
@@ -382,39 +346,45 @@
     }
     function refreshBlock(i) {
         const lvl = state[i].level;
-        ['I','A','M'].forEach(l => { const b = document.getElementById(`btn-${l}-${i}`); if(b) b.className=`iam-btn${lvl===l?` on-${l}`:''}`; });
-        const f = document.getElementById(`fields-${i}`); if(f) f.style.display = lvl?'':'none';
-        const b = document.getElementById(`ob-${i}`); if(b) b.className=`outcome-block${lvl?` has-${lvl}`:''}`;
+        ['I','A','M'].forEach(l => {
+            const b = document.getElementById(`btn-${l}-${i}`);
+            if (b) b.className = `iam-btn${lvl===l ? ` on-${l}` : ''}`;
+        });
+        const f = document.getElementById(`fields-${i}`); if (f) f.style.display = lvl ? '' : 'none';
+        const b = document.getElementById(`ob-${i}`); if (b) b.className = `outcome-block${lvl ? ` has-${lvl}` : ''}`;
     }
     function updateStats() {
         let I=0,A=0,M=0;
-        OUTCOMES.forEach((_,i)=>{ if(state[i].level==='I')I++; else if(state[i].level==='A')A++; else if(state[i].level==='M')M++; });
+        OUTCOMES.forEach((_,i) => { if(state[i].level==='I')I++; else if(state[i].level==='A')A++; else if(state[i].level==='M')M++; });
         const total=I+A+M, n=OUTCOMES.length, maxV=Math.max(I,A,M,1);
-        document.getElementById('prog-fill').style.width=(total/n*100)+'%';
-        document.getElementById('prog-label').textContent=`${total} of ${n}`;
-        document.getElementById('cnt-I').textContent=I;
-        document.getElementById('cnt-A').textContent=A;
-        document.getElementById('cnt-M').textContent=M;
-        document.getElementById('donut-total').textContent=total;
-        document.getElementById('bar-I').style.width=(I/maxV*100)+'%';
-        document.getElementById('bar-A').style.width=(A/maxV*100)+'%';
-        document.getElementById('bar-M').style.width=(M/maxV*100)+'%';
-        if(donutChart){ donutChart.data.datasets[0].data=[I,A,M]; donutChart.update(); }
+        document.getElementById('prog-fill').style.width = (total/n*100)+'%';
+        document.getElementById('prog-label').textContent = `${total} of ${n}`;
+        document.getElementById('cnt-I').textContent = I;
+        document.getElementById('cnt-A').textContent = A;
+        document.getElementById('cnt-M').textContent = M;
+        document.getElementById('donut-total').textContent = total;
+        document.getElementById('bar-I').style.width = (I/maxV*100)+'%';
+        document.getElementById('bar-A').style.width = (A/maxV*100)+'%';
+        document.getElementById('bar-M').style.width = (M/maxV*100)+'%';
+        if (donutChart) { donutChart.data.datasets[0].data=[I,A,M]; donutChart.update(); }
     }
     function initChart() {
-        donutChart = new Chart(document.getElementById('donut-canvas'),{
-            type:'doughnut',
-            data:{labels:['Introductory (I)','Advanced (A)','Mastery (M)'],datasets:[{data:[0,0,0],backgroundColor:['rgba(0,109,119,.85)','rgba(181,152,90,.85)','rgba(45,106,159,.85)'],borderWidth:3,borderColor:'#fff',hoverOffset:8}]},
-            options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed}`}}}}
+        donutChart = new Chart(document.getElementById('donut-canvas'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Introductory (I)','Advanced (A)','Mastery (M)'],
+                datasets: [{ data:[0,0,0], backgroundColor:['rgba(0,109,119,.85)','rgba(181,152,90,.85)','rgba(45,106,159,.85)'], borderWidth:3, borderColor:'#fff', hoverOffset:8 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed}`}} } }
         });
     }
 
     function validate() {
-        if(!document.getElementById('fname').value.trim())       { toast('⚠ Please enter your first name.','error'); return false; }
-        if(!document.getElementById('lname').value.trim())       { toast('⚠ Please enter your last name.','error'); return false; }
-        if(!document.getElementById('email').value.trim())       { toast('⚠ Please enter your email address.','error'); return false; }
-        if(!document.getElementById('course-name').value.trim()) { toast('⚠ Please enter your course name.','error'); return false; }
-        if(!OUTCOMES.some((_,i)=>state[i].level))                { toast('⚠ Please address at least one program outcome.','error'); return false; }
+        if (!document.getElementById('fname').value.trim())       { toast('⚠ Please enter your first name.','error'); return false; }
+        if (!document.getElementById('lname').value.trim())       { toast('⚠ Please enter your last name.','error'); return false; }
+        if (!document.getElementById('email').value.trim())       { toast('⚠ Please enter your email address.','error'); return false; }
+        if (!document.getElementById('course-name').value.trim()) { toast('⚠ Please enter your course name.','error'); return false; }
+        if (!OUTCOMES.some((_,i) => state[i].level))              { toast('⚠ Please address at least one program outcome.','error'); return false; }
         return true;
     }
 
@@ -434,8 +404,8 @@
             },
             program: PROGRAM,
             mapping: OUTCOMES.map((o,i) => ({
-                outcome: o,
-                level:   state[i].level || '',
+                outcome:    o,
+                level:      state[i].level || '',
                 activities: state[i].activities,
                 assessment: state[i].assessment,
             })),
@@ -444,32 +414,28 @@
     }
 
     async function submit() {
-        if(!validate()) return;
+        if (!validate()) return;
         const payload = buildPayload();
 
-        // If no URL configured, warn but let them download
-        if(!SCRIPT_URL) {
-            toast('⚠ No Google Sheets URL configured. Downloading JSON instead.','error');
-            dl(payload);
-            return;
-        }
-
-        // Set loading state
         const btn = document.getElementById('submit-btn');
         btn.classList.add('loading');
         btn.disabled = true;
 
         try {
+            // URLSearchParams = "simple request" → works with no-cors + Apps Script
+            const formData = new URLSearchParams();
+            formData.append('data', JSON.stringify(payload));
+
             await fetch(SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors',           // required for Apps Script
-                body: JSON.stringify(payload),
+                mode:   'no-cors',
+                body:   formData,
             });
-            // no-cors means we can't read the response, but if no error = success
+
             window._lastPayload = payload;
             showSuccess(payload);
         } catch(err) {
-            toast('✗ Submission failed. Please try again or download JSON.','error');
+            toast('✗ Submission failed. Please try again.', 'error');
             btn.classList.remove('loading');
             btn.disabled = false;
         }
@@ -503,7 +469,7 @@
         const t = document.getElementById('toast');
         t.textContent = msg;
         t.className = `toast${type?' '+type:''} show`;
-        setTimeout(()=> t.classList.remove('show'), 4000);
+        setTimeout(() => t.classList.remove('show'), 4000);
     }
 
     renderOutcomes();
