@@ -5,144 +5,200 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Curriculum Mapping Tool</title>
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <style>
         :root {
-            --navy:#0d2137; --teal:#006D77; --teal-light:#83C5BE;
-            --I:#006D77; --Ibg:#EDF6F9; --A:#B5985A; --Abg:#F5EDD8; --M:#2D6A9F; --Mbg:#EAF2FB;
-            --border:#D4D8E0; --gray-50:#F7F8FA; --gray-100:#ECEEF2;
-            --gray-400:#8C94A6; --gray-700:#3A4356; --text:#111827; --r:6px;
+            --navy:       #0d2137;
+            --teal:       #006D77;
+            --teal-light: #83C5BE;
+            --teal-muted: #EDF6F9;
+            --gold:       #B5985A;
+            --gold-light: #F5EDD8;
+            --I:  #006D77; --Ibg: #EDF6F9;
+            --A:  #B5985A; --Abg: #F5EDD8;
+            --M:  #2D6A9F; --Mbg: #EAF2FB;
+            --border: #D4D8E0;
+            --gray-50:  #F7F8FA;
+            --gray-100: #ECEEF2;
+            --gray-200: #D4D8E0;
+            --gray-400: #8C94A6;
+            --gray-700: #3A4356;
+            --text:     #111827;
+            --r: 6px;
         }
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        html{scroll-behavior:smooth}
-        body{font-family:'DM Sans',sans-serif;background:#F0F2F6;color:var(--text);min-height:100vh}
+        *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #F0F2F6;
+            color: var(--text);
+            min-height: 100vh;
+        }
 
-        .hdr{background:var(--navy);height:64px;display:flex;align-items:center;padding:0 40px;position:sticky;top:0;z-index:50;border-bottom:3px solid var(--teal)}
-        .hdr-left{display:flex;align-items:center;gap:14px}
-        .hdr-icon{width:36px;height:36px;background:var(--teal);border-radius:5px;display:flex;align-items:center;justify-content:center}
-        .hdr-icon svg{width:18px;height:18px;fill:none;stroke:white;stroke-width:2.2}
-        .hdr h1{font-family:'EB Garamond',serif;font-size:1.2rem;font-weight:500;color:white}
-        .hdr h1 em{color:var(--teal-light)}
+        .hdr {
+            background: var(--navy);
+            height: 64px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px;
+            position: sticky; top: 0; z-index: 50;
+            border-bottom: 3px solid var(--teal);
+        }
+        .hdr-left { display:flex; align-items:center; gap:14px; }
+        .hdr-icon {
+            width:36px; height:36px; background:var(--teal); border-radius:5px;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .hdr-icon svg { width:18px; height:18px; fill:none; stroke:white; stroke-width:2.2; }
+        .hdr h1 { font-family:'EB Garamond',serif; font-size:1.2rem; font-weight:500; color:white; }
+        .hdr h1 em { color:var(--teal-light); }
+        .hdr-right { font-size:.72rem; color:rgba(255,255,255,.35); letter-spacing:.07em; text-transform:uppercase; }
 
-        .wrap{max-width:960px;margin:0 auto;padding:36px 24px 80px;display:flex;flex-direction:column;gap:20px}
+        .wrap { max-width:860px; margin:0 auto; padding:36px 24px 80px; display:flex; flex-direction:column; gap:20px; }
 
-        .card{background:white;border-radius:10px;box-shadow:0 1px 3px rgba(13,33,55,.07),0 4px 16px rgba(13,33,55,.05);overflow:hidden}
-        .card-hdr{padding:18px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
-        .card-hdr-num{width:28px;height:28px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:white;flex-shrink:0}
-        .card-hdr h2{font-family:'EB Garamond',serif;font-size:1.15rem;font-weight:500;color:var(--navy)}
-        .card-hdr .sub{font-size:.75rem;color:var(--gray-400);margin-top:1px}
-        .card-body{padding:28px}
+        /* ── CONFIG BANNER ── */
+        .config-banner {
+            background: linear-gradient(135deg, #FFF8EC, #FFF3DC);
+            border: 1.5px solid rgba(181,152,90,.4);
+            border-radius: 8px;
+            padding: 14px 18px;
+            display: flex; align-items: flex-start; gap: 12px;
+        }
+        .config-banner .icon { font-size: 1.1rem; flex-shrink:0; margin-top:1px; }
+        .config-banner .text { font-size:.82rem; color:var(--gray-700); line-height:1.6; }
+        .config-banner .text strong { color:var(--navy); }
+        .config-banner .text code {
+            background: rgba(0,0,0,.07); padding:1px 6px; border-radius:3px;
+            font-family: monospace; font-size:.8rem;
+        }
 
-        .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-        .field{display:flex;flex-direction:column;gap:5px}
-        label{font-size:.73rem;font-weight:600;color:var(--gray-700);letter-spacing:.045em;text-transform:uppercase}
-        input,textarea{font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--text);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 13px;background:white;transition:border-color .15s,box-shadow .15s;width:100%}
-        input:focus,textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,109,119,.11)}
-        textarea{resize:vertical;min-height:60px}
+        .card { background:white; border-radius:10px; box-shadow:0 1px 3px rgba(13,33,55,.07),0 4px 16px rgba(13,33,55,.05); overflow:hidden; }
+        .card-hdr { padding:18px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+        .card-hdr-num {
+            width:28px; height:28px; background:var(--navy); border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            font-size:.75rem; font-weight:700; color:white; flex-shrink:0;
+        }
+        .card-hdr h2 { font-family:'EB Garamond',serif; font-size:1.15rem; font-weight:500; color:var(--navy); }
+        .card-hdr .sub { font-size:.75rem; color:var(--gray-400); margin-top:1px; }
+        .card-body { padding:28px; }
 
-        /* Course cards */
-        .course-card{border:1.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;transition:border-color .2s}
-        .course-card:last-child{margin-bottom:0}
-        .course-card-hdr{padding:13px 18px;background:var(--gray-50);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:background .15s}
-        .course-card-hdr:hover{background:var(--gray-100)}
-        .course-num{font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gray-400);white-space:nowrap}
-        .course-name-display{font-family:'EB Garamond',serif;font-size:1rem;color:var(--navy);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .course-summary{font-size:.72rem;color:var(--gray-400);white-space:nowrap;flex-shrink:0}
-        .course-remove{background:none;border:none;cursor:pointer;color:var(--gray-400);padding:4px 8px;border-radius:4px;font-size:.8rem;flex-shrink:0;line-height:1}
-        .course-remove:hover{color:#c0392b;background:#fee2e2}
-        .course-toggle{font-size:.75rem;color:var(--gray-400);transition:transform .2s;flex-shrink:0}
-        .course-toggle.open{transform:rotate(180deg)}
-        .course-card-body{padding:18px 20px}
-        .course-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--gray-100)}
+        .field-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        .field { display:flex; flex-direction:column; gap:5px; }
+        .field.full { grid-column:1/-1; }
+        label { font-size:.73rem; font-weight:600; color:var(--gray-700); letter-spacing:.045em; text-transform:uppercase; }
+        input, textarea {
+            font-family:'DM Sans',sans-serif; font-size:.9rem; color:var(--text);
+            border:1.5px solid var(--border); border-radius:var(--r); padding:10px 13px;
+            background:white; transition:border-color .15s,box-shadow .15s; width:100%;
+        }
+        input:focus, textarea:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(0,109,119,.11); }
+        textarea { resize:vertical; min-height:60px; }
+        .hint { font-size:.72rem; color:var(--gray-400); font-style:italic; margin-top:3px; }
 
-        /* IAM guide */
-        .iam-guide{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:22px}
-        .iam-card{border-radius:8px;padding:12px 14px;border:1.5px solid;display:flex;align-items:flex-start;gap:10px}
-        .iam-card.I{background:var(--Ibg);border-color:rgba(0,109,119,.3)}
-        .iam-card.A{background:var(--Abg);border-color:rgba(181,152,90,.3)}
-        .iam-card.M{background:var(--Mbg);border-color:rgba(45,106,159,.3)}
-        .iam-letter{font-family:'EB Garamond',serif;font-size:1.5rem;font-weight:600;line-height:1;flex-shrink:0}
-        .iam-card.I .iam-letter{color:var(--I)}.iam-card.A .iam-letter{color:var(--A)}.iam-card.M .iam-letter{color:var(--M)}
-        .iam-text .t{font-size:.78rem;font-weight:600;color:var(--navy);display:block;margin-bottom:2px}
-        .iam-text .d{font-size:.72rem;color:var(--gray-700);line-height:1.4}
+        .iam-guide { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:24px; }
+        .iam-card { border-radius:8px; padding:12px 14px; border:1.5px solid; display:flex; align-items:flex-start; gap:10px; }
+        .iam-card.I { background:var(--Ibg); border-color:rgba(0,109,119,.3); }
+        .iam-card.A { background:var(--Abg); border-color:rgba(181,152,90,.3); }
+        .iam-card.M { background:var(--Mbg); border-color:rgba(45,106,159,.3); }
+        .iam-letter { font-family:'EB Garamond',serif; font-size:1.5rem; font-weight:600; line-height:1; flex-shrink:0; }
+        .iam-card.I .iam-letter { color:var(--I); }
+        .iam-card.A .iam-letter { color:var(--A); }
+        .iam-card.M .iam-letter { color:var(--M); }
+        .iam-text .t { font-size:.78rem; font-weight:600; color:var(--navy); display:block; margin-bottom:2px; }
+        .iam-text .d { font-size:.72rem; color:var(--gray-700); line-height:1.4; }
 
-        /* Outcomes */
-        .outcomes-wrap{display:flex;flex-direction:column;gap:10px}
-        .outcome-block{border:1.5px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s}
-        .outcome-block.has-I{border-color:var(--I)}.outcome-block.has-A{border-color:var(--A)}.outcome-block.has-M{border-color:var(--M)}
-        .ob-top{padding:11px 15px;background:var(--gray-50);border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px}
-        .ob-num{font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gray-400);padding-top:2px;white-space:nowrap;min-width:58px}
-        .ob-text{font-family:'EB Garamond',serif;font-size:.93rem;color:var(--navy);line-height:1.5;flex:1}
-        .ob-iam{display:flex;gap:4px;flex-shrink:0}
-        .iam-btn{width:30px;height:30px;border-radius:6px;border:1.5px solid var(--border);background:white;font-size:.78rem;font-weight:700;color:var(--gray-400);cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center}
-        .iam-btn:hover{border-color:var(--gray-400);color:var(--gray-700)}
-        .iam-btn.on-I{background:var(--Ibg);border-color:var(--I);color:var(--I)}
-        .iam-btn.on-A{background:var(--Abg);border-color:var(--A);color:var(--A)}
-        .iam-btn.on-M{background:var(--Mbg);border-color:var(--M);color:var(--M)}
-        .ob-fields{border-top:1px solid var(--border)}
-        .ob-field{padding:11px 15px;border-bottom:1px solid var(--gray-100)}
-        .ob-field:last-child{border-bottom:none}
-        .ob-field label{display:block;margin-bottom:5px}
+        .prog-wrap { padding:0 28px 20px; }
+        .prog-top { display:flex; justify-content:space-between; margin-bottom:6px; }
+        .prog-top span { font-size:.75rem; color:var(--gray-400); }
+        .prog-top strong { font-size:.75rem; color:var(--teal); font-weight:600; }
+        .prog-track { height:6px; background:var(--gray-100); border-radius:3px; overflow:hidden; }
+        .prog-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--teal),var(--teal-light)); transition:width .4s ease; }
 
-        .add-course-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:1.5px dashed var(--border);border-radius:8px;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;color:var(--gray-400);transition:all .15s;margin-top:16px}
-        .add-course-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-muted)}
+        .outcomes-wrap { display:flex; flex-direction:column; gap:16px; }
+        .outcome-block { border:1.5px solid var(--border); border-radius:8px; overflow:hidden; transition:border-color .2s; }
+        .outcome-block.has-I { border-color:var(--I); }
+        .outcome-block.has-A { border-color:var(--A); }
+        .outcome-block.has-M { border-color:var(--M); }
+        .ob-top { padding:14px 18px; background:var(--gray-50); border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:12px; }
+        .ob-num { font-size:.68rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--gray-400); padding-top:2px; white-space:nowrap; min-width:64px; }
+        .ob-text { font-family:'EB Garamond',serif; font-size:1rem; color:var(--navy); line-height:1.5; flex:1; }
+        .ob-iam { display:flex; gap:5px; flex-shrink:0; }
+        .iam-btn {
+            width:36px; height:36px; border-radius:6px; border:1.5px solid var(--border);
+            background:white; font-size:.83rem; font-weight:700; color:var(--gray-400);
+            cursor:pointer; transition:all .12s; display:flex; align-items:center; justify-content:center;
+        }
+        .iam-btn:hover { border-color:var(--gray-400); color:var(--gray-700); }
+        .iam-btn.on-I { background:var(--Ibg); border-color:var(--I); color:var(--I); }
+        .iam-btn.on-A { background:var(--Abg); border-color:var(--A); color:var(--A); }
+        .iam-btn.on-M { background:var(--Mbg); border-color:var(--M); color:var(--M); }
+        .ob-fields { padding:16px 18px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .ob-field label { font-size:.68rem; font-weight:600; color:var(--gray-400); letter-spacing:.05em; text-transform:uppercase; display:block; margin-bottom:4px; }
+        .ob-field textarea { font-size:.82rem; min-height:58px; padding:8px 10px; color:var(--gray-700); }
 
-        /* Matrix diagram */
-        .legend{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px}
-        .legend-item{display:flex;align-items:center;gap:7px;font-size:.75rem;color:var(--gray-700)}
-        .legend-dot{width:14px;height:14px;border-radius:4px;flex-shrink:0}
-        .matrix-scroll{overflow-x:auto;border-radius:8px;border:1px solid var(--border)}
-        .matrix-table{border-collapse:collapse;min-width:100%}
-        .matrix-table th{background:var(--navy);color:white;font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:600;letter-spacing:.04em;padding:12px 14px;text-align:center;border:1px solid rgba(255,255,255,.1);white-space:nowrap;vertical-align:bottom}
-        .matrix-table th.outcome-col-h{text-align:left;min-width:220px;background:#0a1b2d}
-        .matrix-table th .course-code-sub{font-weight:400;opacity:.65;font-size:.62rem;display:block;margin-top:2px}
-        .matrix-table td{border:1px solid var(--border);text-align:center;vertical-align:middle;padding:0}
-        .outcome-label-cell{text-align:left;padding:10px 14px;background:var(--gray-50);font-family:'EB Garamond',serif;font-size:.9rem;color:var(--navy);line-height:1.4;min-width:220px}
-        .outcome-label-cell .out-num{font-family:'DM Sans',sans-serif;font-size:.63rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gray-400);display:block;margin-bottom:2px}
-        .map-cell{width:80px;cursor:pointer;transition:background .12s;position:relative}
-        .map-cell:hover{background:#f0f9fa}
-        .map-cell.empty-cell{cursor:default}
-        .map-cell.empty-cell:hover{background:transparent}
-        .map-badge{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:7px;font-weight:700;font-size:.88rem;font-family:'EB Garamond',serif;margin:8px auto}
-        .map-badge.I{background:var(--Ibg);color:var(--I);border:1.5px solid rgba(0,109,119,.3)}
-        .map-badge.A{background:var(--Abg);color:var(--A);border:1.5px solid rgba(181,152,90,.3)}
-        .map-badge.M{background:var(--Mbg);color:var(--M);border:1.5px solid rgba(45,106,159,.3)}
-        .map-badge.empty{background:transparent;color:var(--gray-200);border:1.5px dashed var(--border);font-size:.75rem}
+        .chart-hdr { background:var(--navy); padding:16px 28px; border-bottom:3px solid var(--gold); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+        .chart-hdr h3 { font-family:'EB Garamond',serif; font-size:1.05rem; color:white; font-weight:500; }
+        .chart-hdr p { font-size:.72rem; color:rgba(255,255,255,.4); margin-top:2px; }
+        .chart-legend { display:flex; gap:14px; }
+        .cl { display:flex; align-items:center; gap:5px; font-size:.72rem; color:rgba(255,255,255,.7); }
+        .cl-dot { width:8px; height:8px; border-radius:50%; }
+        .chart-body { padding:24px 28px; display:grid; grid-template-columns:200px 1fr; gap:28px; align-items:center; }
+        .donut-wrap { position:relative; width:200px; height:200px; }
+        .donut-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; }
+        .donut-center .big { font-family:'EB Garamond',serif; font-size:2rem; color:var(--navy); line-height:1; }
+        .donut-center .sm { font-size:.68rem; color:var(--gray-400); margin-top:2px; }
+        .stat-pills { display:flex; flex-direction:column; gap:10px; }
+        .sp { border-radius:8px; padding:12px 16px; display:flex; align-items:center; gap:14px; border:1.5px solid; }
+        .sp.I { background:var(--Ibg); border-color:rgba(0,109,119,.2); }
+        .sp.A { background:var(--Abg); border-color:rgba(181,152,90,.2); }
+        .sp.M { background:var(--Mbg); border-color:rgba(45,106,159,.2); }
+        .sp-count { font-family:'EB Garamond',serif; font-size:1.8rem; font-weight:600; line-height:1; min-width:32px; text-align:center; }
+        .sp.I .sp-count { color:var(--I); }
+        .sp.A .sp-count { color:var(--A); }
+        .sp.M .sp-count { color:var(--M); }
+        .sp-label { font-size:.8rem; color:var(--gray-700); font-weight:500; }
+        .sp-sub { font-size:.68rem; color:var(--gray-400); }
+        .sp-bar-wrap { flex:1; }
+        .sp-bar { height:5px; border-radius:3px; margin-top:6px; transition:width .4s; }
+        .sp.I .sp-bar { background:var(--I); }
+        .sp.A .sp-bar { background:var(--A); }
+        .sp.M .sp-bar { background:var(--M); }
 
-        /* Popover */
-        .popover{position:fixed;z-index:500;background:white;border-radius:10px;padding:16px 18px;max-width:300px;min-width:200px;pointer-events:none;opacity:0;transition:opacity .15s;border:1px solid var(--border);box-shadow:0 8px 32px rgba(13,33,55,.2)}
-        .popover.visible{opacity:1}
-        .pop-out-label{font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gray-400);margin-bottom:3px}
-        .pop-course-name{font-family:'EB Garamond',serif;font-size:1.05rem;color:var(--navy);font-weight:600;margin-bottom:8px;line-height:1.3}
-        .pop-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.73rem;font-weight:700;margin-bottom:10px}
-        .pop-badge.I{background:var(--Ibg);color:var(--I)}.pop-badge.A{background:var(--Abg);color:var(--A)}.pop-badge.M{background:var(--Mbg);color:var(--M)}
-        .pop-section{margin-top:9px;padding-top:9px;border-top:1px solid var(--gray-100)}
-        .pop-section-label{font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-400);margin-bottom:3px;display:block}
-        .pop-section-text{font-size:.82rem;color:var(--gray-700);line-height:1.5}
-        .pop-empty{font-size:.78rem;color:var(--gray-400);font-style:italic;margin-top:6px}
-        .pop-pin-hint{font-size:.67rem;color:var(--gray-400);margin-top:10px;padding-top:8px;border-top:1px solid var(--gray-100)}
+        .btn { font-family:'DM Sans',sans-serif; font-size:.84rem; font-weight:600; padding:11px 24px; border-radius:var(--r); border:none; cursor:pointer; display:inline-flex; align-items:center; gap:7px; transition:all .15s; letter-spacing:.02em; }
+        .btn-primary { background:var(--teal); color:white; }
+        .btn-primary:hover { background:#005963; transform:translateY(-1px); box-shadow:0 4px 14px rgba(0,109,119,.3); }
+        .btn-navy { background:var(--navy); color:white; }
+        .btn-navy:hover { background:#162d45; transform:translateY(-1px); }
+        .btn-ghost { background:var(--gray-100); color:var(--gray-700); border:1.5px solid var(--border); }
+        .btn-ghost:hover { background:var(--gray-200); }
+        .action-row { display:flex; gap:12px; flex-wrap:wrap; padding:24px 28px; border-top:1px solid var(--border); }
 
-        /* Buttons & actions */
-        .action-row{padding:20px 28px;display:flex;gap:12px;flex-wrap:wrap}
-        .btn{font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;padding:10px 20px;border-radius:var(--r);border:none;cursor:pointer;transition:all .15s}
-        .btn-primary{background:var(--teal);color:white}.btn-primary:hover{background:#005a62}
-        .btn-navy{background:var(--navy);color:white}.btn-navy:hover{background:#0a1a2b}
-        .btn-ghost{background:transparent;color:var(--gray-700);border:1.5px solid var(--border)}.btn-ghost:hover{border-color:var(--gray-400)}
-        .btn:disabled{opacity:.5;cursor:not-allowed}
+        /* ── SUBMIT STATE ── */
+        .submit-spinner {
+            width:18px; height:18px; border:2px solid rgba(255,255,255,.3);
+            border-top-color:white; border-radius:50%;
+            animation:spin .7s linear infinite; display:none;
+        }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .btn-primary.loading .submit-spinner { display:block; }
+        .btn-primary.loading .btn-label { opacity:.6; }
 
-        .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:white;padding:12px 24px;border-radius:8px;font-size:.85rem;opacity:0;transition:all .25s;pointer-events:none;z-index:600}
-        .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+        .toast { position:fixed; bottom:24px; right:24px; background:var(--navy); color:white; padding:11px 18px; border-radius:8px; font-size:.82rem; box-shadow:0 8px 24px rgba(0,0,0,.18); border-left:4px solid var(--teal); transform:translateY(80px); opacity:0; transition:all .3s ease; z-index:200; }
+        .toast.show { transform:translateY(0); opacity:1; }
+        .toast.error { border-left-color:#E05858; }
 
-        .success-screen{text-align:center;padding:60px 40px}
-        .success-ring{width:72px;height:72px;border-radius:50%;background:#e8f7f3;border:3px solid var(--teal);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
-        .success-ring svg{width:32px;height:32px;fill:none;stroke:var(--teal);stroke-width:2.5;stroke-linecap:round}
-        .success-screen h3{font-family:'EB Garamond',serif;font-size:1.8rem;color:var(--navy);margin-bottom:12px}
-        .success-screen p{color:var(--gray-700);max-width:460px;margin:0 auto 28px;line-height:1.6}
+        .success-screen { text-align:center; padding:52px 28px; }
+        .success-ring { width:76px; height:76px; background:var(--teal); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; box-shadow:0 8px 28px rgba(0,109,119,.3); }
+        .success-ring svg { width:38px; height:38px; fill:none; stroke:white; stroke-width:2.5; }
+        .success-screen h3 { font-family:'EB Garamond',serif; font-size:1.7rem; color:var(--navy); margin-bottom:8px; }
+        .success-screen p { font-size:.85rem; color:var(--gray-400); max-width:420px; margin:0 auto 28px; line-height:1.65; }
 
-        @media(max-width:680px){
-            .hdr{padding:0 20px}
-            .field-row{grid-template-columns:1fr}
-            .iam-guide{grid-template-columns:1fr}
-            .course-fields{grid-template-columns:1fr}
+        @media(max-width:640px){
+            .field-row{grid-template-columns:1fr;} .ob-fields{grid-template-columns:1fr;}
+            .ob-top{flex-wrap:wrap;} .chart-body{grid-template-columns:1fr;}
+            .donut-wrap{width:100%;} .iam-guide{grid-template-columns:1fr;}
+            .hdr{padding:0 16px;} .wrap{padding:20px 12px 60px;}
+            .card-body,.action-row{padding:20px;}
         }
     </style>
 </head>
@@ -151,125 +207,125 @@
 <header class="hdr">
     <div class="hdr-left">
         <div class="hdr-icon">
-            <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 012-2h12a2 2 0 012 2v14"/><path d="M8 10h8M8 14h5"/></svg>
         </div>
-        <h1>Curriculum Mapping — <em>Karolinska Institutet</em></h1>
+        <h1>Curriculum Mapping <em>Tool</em></h1>
     </div>
+    <div class="hdr-right">Karolinska Institutet</div>
 </header>
 
 <div class="wrap" id="main-wrap">
 
-    <!-- CARD 1: Instructor -->
+    <!-- ── SETUP NOTICE (visible until SCRIPT_URL is set) ── -->
+    <div class="config-banner" id="config-banner">
+        <span class="icon">⚙️</span>
+        <div class="text">
+            <strong>Admin setup needed:</strong> Paste your Google Apps Script URL into this file.<br>
+            Find the line <code>const SCRIPT_URL = ""</code> near the top of the &lt;script&gt; and replace it with your deployed Web App URL.
+        </div>
+    </div>
+
+    <!-- CARD 1 -->
     <div class="card">
         <div class="card-hdr">
             <div class="card-hdr-num">1</div>
-            <div>
-                <h2>Instructor Information</h2>
-                <div class="sub">A — Your personal details (shared across all your courses)</div>
-            </div>
+            <div><h2>Your Details &amp; Course</h2><div class="sub">Enter your name and the course you teach in this program</div></div>
         </div>
         <div class="card-body">
             <div class="field-row">
-                <div class="field"><label>First Name *</label><input id="fname" type="text" placeholder="Jane"></div>
-                <div class="field"><label>Last Name *</label><input id="lname" type="text" placeholder="Smith"></div>
-                <div class="field"><label>Email Address *</label><input id="email" type="email" placeholder="j.smith@university.edu"></div>
-                <div class="field"><label>Academic Title</label><input id="atitle" type="text" placeholder="Associate Professor"></div>
+                <div class="field"><label>First Name *</label><input type="text" id="fname" placeholder="e.g. Anna"></div>
+                <div class="field"><label>Last Name *</label><input type="text" id="lname" placeholder="e.g. Lindström"></div>
+                <div class="field"><label>Email *</label><input type="text" id="email" placeholder="anna.lindstrom@ki.se"></div>
+                <div class="field"><label>Academic Title</label><input type="text" id="atitle" placeholder="e.g. Associate Professor"></div>
+                <div class="field full">
+                    <label>Course Name *</label>
+                    <input type="text" id="course-name" placeholder="e.g. Pharmacology I — the course you personally teach">
+                </div>
+                <div class="field"><label>Course Code</label><input type="text" id="course-code" placeholder="e.g. BIO2401"></div>
+                <div class="field"><label>Credits (hp)</label><input type="text" id="course-hp" placeholder="e.g. 7.5"></div>
             </div>
         </div>
     </div>
 
-    <!-- CARD 2: Courses + mapping -->
+    <!-- CARD 2 -->
     <div class="card">
         <div class="card-hdr">
             <div class="card-hdr-num">2</div>
-            <div>
-                <h2>Courses &amp; Program Learning Outcomes</h2>
-                <div class="sub">B, C, D — Add all your courses and map each outcome</div>
-            </div>
+            <div><h2>Program Outcomes — Your Course's Contribution</h2><div class="sub">Select I / A / M for each outcome your course addresses. Leave blank if not addressed.</div></div>
         </div>
-        <div class="card-body">
+        <div style="padding:20px 28px 4px;">
             <div class="iam-guide">
-                <div class="iam-card I">
-                    <span class="iam-letter">I</span>
-                    <div class="iam-text">
-                        <span class="t">Introductory</span>
-                        <span class="d">Students recall and explain facts, concepts, and basic procedures</span>
-                    </div>
-                </div>
-                <div class="iam-card A">
-                    <span class="iam-letter">A</span>
-                    <div class="iam-text">
-                        <span class="t">Advanced</span>
-                        <span class="d">Students apply procedures and analyze complex relationships</span>
-                    </div>
-                </div>
-                <div class="iam-card M">
-                    <span class="iam-letter">M</span>
-                    <div class="iam-text">
-                        <span class="t">Mastery</span>
-                        <span class="d">Students evaluate, create, and defend independent judgments</span>
-                    </div>
-                </div>
+                <div class="iam-card I"><span class="iam-letter">I</span><div class="iam-text"><span class="t">Introductory</span><span class="d">Students recall or explain basic concepts. Lower-order cognition.</span></div></div>
+                <div class="iam-card A"><span class="iam-letter">A</span><div class="iam-text"><span class="t">Advanced</span><span class="d">Students apply procedures or analyse how parts relate.</span></div></div>
+                <div class="iam-card M"><span class="iam-letter">M</span><div class="iam-text"><span class="t">Mastery</span><span class="d">Students evaluate evidence or create novel products/artefacts.</span></div></div>
             </div>
-            <div id="courses-wrap"></div>
-            <button class="add-course-btn" onclick="addCourse()">＋ Add Another Course</button>
         </div>
+        <div class="prog-wrap">
+            <div class="prog-top"><span>Outcomes addressed by your course</span><strong id="prog-label">0 of 0</strong></div>
+            <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        </div>
+        <div class="outcomes-wrap" id="outcomes-wrap" style="padding:0 28px 28px;"></div>
     </div>
 
-    <!-- CARD 3: Matrix diagram -->
+    <!-- CARD 3 -->
     <div class="card">
         <div class="card-hdr">
             <div class="card-hdr-num">3</div>
-            <div>
-                <h2>Curriculum Map — Visual Overview</h2>
-                <div class="sub">Hover or click any cell to see activities &amp; assessment details</div>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="legend">
-                <div class="legend-item"><div class="legend-dot" style="background:var(--I)"></div>Introductory</div>
-                <div class="legend-item"><div class="legend-dot" style="background:var(--A)"></div>Advanced</div>
-                <div class="legend-item"><div class="legend-dot" style="background:var(--M)"></div>Mastery</div>
-                <div class="legend-item"><div class="legend-dot" style="background:var(--border);border:1px dashed var(--gray-400)"></div>Not addressed</div>
-            </div>
-            <div class="matrix-scroll" id="matrix-wrap"></div>
-        </div>
-    </div>
-
-    <!-- CARD 4: Indirect measures -->
-    <div class="card">
-        <div class="card-hdr">
-            <div class="card-hdr-num">4</div>
-            <div>
-                <h2>Indirect Measures</h2>
-                <div class="sub">E — Surveys, alumni studies, employer feedback, etc.</div>
-            </div>
+            <div><h2>Indirect Measures</h2><div class="sub">Optional — surveys or focus groups that reflect outcomes from your course</div></div>
         </div>
         <div class="card-body">
             <div class="field">
-                <label>Indirect measures linked to your course(s) (optional)</label>
-                <textarea id="indirect" placeholder="e.g. Graduating senior exit survey, alumni survey, employer survey…"></textarea>
+                <label>Indirect measures</label>
+                <textarea id="indirect" placeholder="e.g. Employer survey, alumni focus group, graduating senior exit survey…" style="min-height:76px;"></textarea>
+                <div class="hint">These ask students or external stakeholders to report their perceptions of knowledge/skill gains</div>
             </div>
         </div>
     </div>
 
-    <!-- CARD 5: Submit -->
+    <!-- CARD 4 — Live chart -->
+    <div class="card">
+        <div class="chart-hdr">
+            <div><h3>Live Overview</h3><p>Updates as you select levels above</p></div>
+            <div class="chart-legend">
+                <div class="cl"><div class="cl-dot" style="background:var(--I)"></div>Introductory</div>
+                <div class="cl"><div class="cl-dot" style="background:var(--A)"></div>Advanced</div>
+                <div class="cl"><div class="cl-dot" style="background:var(--M)"></div>Mastery</div>
+            </div>
+        </div>
+        <div class="chart-body">
+            <div class="donut-wrap">
+                <canvas id="donut-canvas"></canvas>
+                <div class="donut-center"><div class="big" id="donut-total">0</div><div class="sm">outcomes<br>addressed</div></div>
+            </div>
+            <div class="stat-pills">
+                <div class="sp I"><div class="sp-count" id="cnt-I">0</div><div class="sp-bar-wrap"><div class="sp-label">Introductory</div><div class="sp-sub">outcomes at this level</div><div class="sp-bar" style="background:var(--I);height:5px;border-radius:3px;margin-top:6px;transition:width .4s;width:0%" id="bar-I"></div></div></div>
+                <div class="sp A"><div class="sp-count" id="cnt-A">0</div><div class="sp-bar-wrap"><div class="sp-label">Advanced</div><div class="sp-sub">outcomes at this level</div><div class="sp-bar" style="background:var(--A);height:5px;border-radius:3px;margin-top:6px;transition:width .4s;width:0%" id="bar-A"></div></div></div>
+                <div class="sp M"><div class="sp-count" id="cnt-M">0</div><div class="sp-bar-wrap"><div class="sp-label">Mastery</div><div class="sp-sub">outcomes at this level</div><div class="sp-bar" style="background:var(--M);height:5px;border-radius:3px;margin-top:6px;transition:width .4s;width:0%" id="bar-M"></div></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUBMIT -->
     <div class="card">
         <div class="action-row">
-            <button class="btn btn-primary" id="submit-btn" onclick="submitForm()">✓ Submit My Map</button>
-            <button class="btn btn-navy" onclick="exportJSON()">↓ Download as JSON</button>
+            <button class="btn btn-primary" id="submit-btn" onclick="submit()">
+                <div class="submit-spinner" id="spinner"></div>
+                <span class="btn-label">✓ Submit My Map</span>
+            </button>
             <button class="btn btn-ghost" onclick="if(confirm('Clear all entries and start over?'))location.reload()">↺ Start Over</button>
         </div>
     </div>
 
 </div>
 
-<div class="popover" id="popover"></div>
 <div class="toast" id="toast"></div>
 
 <script>
-    // ── CONFIGURATION ─────────────────────────────────────────────────────────────
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnwhmBao4oM7f34KBKhvfmwSsjkk8HGqXeyOqzwiXKccONVWLY-2Tuesg2vzoMC7g/exec";
+    // ─────────────────────────────────────────────────────────────────────────────
+    // ★ PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE:
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw-o7n5SRjKKLV27vcuBXjBfT0MeMDH0W1SpWByO1KntqtApiJLullB2DcbDWEmeoY/exec";
+    // ─────────────────────────────────────────────────────────────────────────────
+
     const PROGRAM  = "Generic Public Policy Programme";
     const OUTCOMES = [
         "Describe organizational and bureaucratic structures involved in policy development",
@@ -279,325 +335,181 @@
         "Effectively communicate ideas orally and in writing",
         "Work effectively as a member of a team",
     ];
-    const LEVEL_NAMES = { I: "Introductory", A: "Advanced", M: "Mastery" };
 
-    // ── STATE ─────────────────────────────────────────────────────────────────────
-    let courseList  = [];
-    let courseCounter = 0;
-    const mappingState = {};   // mappingState[courseId][outcomeIdx] = {level, activities, assessment}
+    const state = {};
+    OUTCOMES.forEach((_, i) => { state[i] = { level:'', activities:'', assessment:'' }; });
+    let donutChart;
 
-    function getM(cid, oi) {
-        if (!mappingState[cid])    mappingState[cid]    = {};
-        if (!mappingState[cid][oi]) mappingState[cid][oi] = { level:'', activities:'', assessment:'' };
-        return mappingState[cid][oi];
-    }
+    // Hide config banner if URL is set
+    if (SCRIPT_URL) document.getElementById('config-banner').style.display = 'none';
 
-    // ── COURSES ───────────────────────────────────────────────────────────────────
-    function addCourse() {
-        const id = courseCounter++;
-        courseList.push({ id, name:'', code:'', hp:'', collapsed: false });
-        mappingState[id] = {};
-        OUTCOMES.forEach((_,i) => { mappingState[id][i] = { level:'', activities:'', assessment:'' }; });
-        renderCourses();
-        renderDiagram();
-    }
-
-    function removeCourse(id) {
-        if (courseList.length <= 1) { toast('⚠ You need at least one course.'); return; }
-        courseList = courseList.filter(c => c.id !== id);
-        delete mappingState[id];
-        renderCourses();
-        renderDiagram();
-    }
-
-    function toggleCollapse(id) {
-        const c = courseList.find(c => c.id === id);
-        if (c) { c.collapsed = !c.collapsed; renderCourses(); }
-    }
-
-    function updateCourseField(id, field, value) {
-        const c = courseList.find(c => c.id === id);
-        if (c) c[field] = value;
-        renderDiagram();
-    }
-
-    function renderCourses() {
-        const wrap = document.getElementById('courses-wrap');
-        wrap.innerHTML = '';
-        courseList.forEach((course, idx) => {
-            const display = course.name || `Course ${idx + 1}`;
-            const mapped  = OUTCOMES.filter((_,i) => getM(course.id, i).level).length;
-            const el = document.createElement('div');
-            el.className = 'course-card';
-            el.id = `cc-${course.id}`;
-            el.innerHTML = `
-      <div class="course-card-hdr" onclick="toggleCollapse(${course.id})">
-        <span class="course-num">Course ${idx + 1}</span>
-        <span class="course-name-display">${display}</span>
-        <span class="course-summary">${mapped > 0 ? mapped + ' of ' + OUTCOMES.length + ' mapped' : 'not mapped yet'}</span>
-        ${courseList.length > 1 ? `<button class="course-remove" onclick="event.stopPropagation();removeCourse(${course.id})" title="Remove this course">✕</button>` : ''}
-        <span class="course-toggle ${course.collapsed ? '' : 'open'}">▾</span>
-      </div>
-      ${!course.collapsed ? `
-      <div class="course-card-body">
-        <div class="course-fields">
-          <div class="field">
-            <label>Course Name *</label>
-            <input type="text" value="${esc(course.name)}" placeholder="e.g. Public Finance"
-              oninput="updateCourseField(${course.id},'name',this.value);this.closest('.course-card').querySelector('.course-name-display').textContent=this.value||'Course ${idx+1}'">
-          </div>
-          <div class="field">
-            <label>Course Code</label>
-            <input type="text" value="${esc(course.code)}" placeholder="e.g. PP201"
-              oninput="updateCourseField(${course.id},'code',this.value)">
-          </div>
-          <div class="field">
-            <label>Credits / Units</label>
-            <input type="text" value="${esc(course.hp)}" placeholder="e.g. 12"
-              oninput="updateCourseField(${course.id},'hp',this.value)">
-          </div>
-        </div>
-        <div class="outcomes-wrap" id="ow-${course.id}"></div>
-      </div>` : ''}
-    `;
-            wrap.appendChild(el);
-            if (!course.collapsed) renderOutcomes(course.id);
-        });
-    }
-
-    function renderOutcomes(cid) {
-        const wrap = document.getElementById(`ow-${cid}`);
-        if (!wrap) return;
+    function renderOutcomes() {
+        const wrap = document.getElementById('outcomes-wrap');
         wrap.innerHTML = '';
         OUTCOMES.forEach((o, i) => {
-            const m  = getM(cid, i);
             const el = document.createElement('div');
-            el.className = `outcome-block${m.level ? ` has-${m.level}` : ''}`;
-            el.id = `ob-${cid}-${i}`;
+            el.className = 'outcome-block'; el.id = `ob-${i}`;
             el.innerHTML = `
       <div class="ob-top">
-        <span class="ob-num">Outcome ${i + 1}</span>
+        <span class="ob-num">Outcome ${i+1}</span>
         <span class="ob-text">${o}</span>
         <div class="ob-iam">
-          <button class="iam-btn${m.level==='I'?' on-I':''}" title="Introductory" onclick="setLevel(${cid},${i},'I')">I</button>
-          <button class="iam-btn${m.level==='A'?' on-A':''}" title="Advanced"     onclick="setLevel(${cid},${i},'A')">A</button>
-          <button class="iam-btn${m.level==='M'?' on-M':''}" title="Mastery"      onclick="setLevel(${cid},${i},'M')">M</button>
+          <button class="iam-btn" id="btn-I-${i}" title="Introductory" onclick="setLevel(${i},'I')">I</button>
+          <button class="iam-btn" id="btn-A-${i}" title="Advanced"     onclick="setLevel(${i},'A')">A</button>
+          <button class="iam-btn" id="btn-M-${i}" title="Mastery"      onclick="setLevel(${i},'M')">M</button>
         </div>
       </div>
-      ${m.level ? `
-      <div class="ob-fields">
+      <div class="ob-fields" id="fields-${i}" style="display:none">
         <div class="ob-field">
           <label>C — Instructional activities in your course</label>
-          <textarea placeholder="e.g. Case study, lecture, group discussion, lab…"
-            oninput="getM(${cid},${i}).activities=this.value;renderDiagram()">${esc(m.activities)}</textarea>
+          <textarea placeholder="e.g. Case study, lecture, group discussion, lab session…"
+            oninput="state[${i}].activities=this.value">${state[i].activities}</textarea>
         </div>
         <div class="ob-field">
           <label>D — How is this outcome assessed?</label>
           <textarea placeholder="e.g. Final exam, oral presentation, written report…"
-            oninput="getM(${cid},${i}).assessment=this.value;renderDiagram()">${esc(m.assessment)}</textarea>
+            oninput="state[${i}].assessment=this.value">${state[i].assessment}</textarea>
         </div>
-      </div>` : ''}
-    `;
+      </div>`;
             wrap.appendChild(el);
+            refreshBlock(i);
         });
     }
 
-    function setLevel(cid, oi, lvl) {
-        const m = getM(cid, oi);
-        m.level = (m.level === lvl) ? '' : lvl;
-        // update summary badge
-        const cc = document.getElementById(`cc-${cid}`);
-        if (cc) {
-            const mapped = OUTCOMES.filter((_,i) => getM(cid, i).level).length;
-            const s = cc.querySelector('.course-summary');
-            if (s) s.textContent = mapped > 0 ? `${mapped} of ${OUTCOMES.length} mapped` : 'not mapped yet';
-        }
-        renderOutcomes(cid);
-        renderDiagram();
+    function setLevel(i, lvl) {
+        state[i].level = (state[i].level === lvl) ? '' : lvl;
+        refreshBlock(i); updateStats();
     }
-
-    // ── DIAGRAM ───────────────────────────────────────────────────────────────────
-    function renderDiagram() {
-        const wrap = document.getElementById('matrix-wrap');
-        if (!courseList.length) {
-            wrap.innerHTML = '<p style="color:var(--gray-400);font-size:.85rem;text-align:center;padding:24px">Add courses above to see the map.</p>';
-            return;
-        }
-
-        let html = '<table class="matrix-table"><thead><tr>';
-        html += '<th class="outcome-col-h">Program Learning Outcome</th>';
-        courseList.forEach((c, idx) => {
-            const nm  = c.name || `Course ${idx + 1}`;
-            const sub = [c.code, c.hp ? c.hp + ' cr' : ''].filter(Boolean).join(' · ');
-            html += `<th>${nm}${sub ? `<span class="course-code-sub">${sub}</span>` : ''}</th>`;
+    function refreshBlock(i) {
+        const lvl = state[i].level;
+        ['I','A','M'].forEach(l => { const b = document.getElementById(`btn-${l}-${i}`); if(b) b.className=`iam-btn${lvl===l?` on-${l}`:''}`; });
+        const f = document.getElementById(`fields-${i}`); if(f) f.style.display = lvl?'':'none';
+        const b = document.getElementById(`ob-${i}`); if(b) b.className=`outcome-block${lvl?` has-${lvl}`:''}`;
+    }
+    function updateStats() {
+        let I=0,A=0,M=0;
+        OUTCOMES.forEach((_,i)=>{ if(state[i].level==='I')I++; else if(state[i].level==='A')A++; else if(state[i].level==='M')M++; });
+        const total=I+A+M, n=OUTCOMES.length, maxV=Math.max(I,A,M,1);
+        document.getElementById('prog-fill').style.width=(total/n*100)+'%';
+        document.getElementById('prog-label').textContent=`${total} of ${n}`;
+        document.getElementById('cnt-I').textContent=I;
+        document.getElementById('cnt-A').textContent=A;
+        document.getElementById('cnt-M').textContent=M;
+        document.getElementById('donut-total').textContent=total;
+        document.getElementById('bar-I').style.width=(I/maxV*100)+'%';
+        document.getElementById('bar-A').style.width=(A/maxV*100)+'%';
+        document.getElementById('bar-M').style.width=(M/maxV*100)+'%';
+        if(donutChart){ donutChart.data.datasets[0].data=[I,A,M]; donutChart.update(); }
+    }
+    function initChart() {
+        donutChart = new Chart(document.getElementById('donut-canvas'),{
+            type:'doughnut',
+            data:{labels:['Introductory (I)','Advanced (A)','Mastery (M)'],datasets:[{data:[0,0,0],backgroundColor:['rgba(0,109,119,.85)','rgba(181,152,90,.85)','rgba(45,106,159,.85)'],borderWidth:3,borderColor:'#fff',hoverOffset:8}]},
+            options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed}`}}}}
         });
-        html += '</tr></thead><tbody>';
-
-        OUTCOMES.forEach((o, i) => {
-            html += '<tr>';
-            html += `<td class="outcome-label-cell"><span class="out-num">Outcome ${i + 1}</span>${o}</td>`;
-            courseList.forEach(course => {
-                const m = getM(course.id, i);
-                if (m.level) {
-                    html += `<td class="map-cell"
-          onmouseenter="showPop(event,${course.id},${i})"
-          onmouseleave="hidePop()"
-          onclick="clickPop(event,${course.id},${i})">
-          <div class="map-badge ${m.level}">${m.level}</div>
-        </td>`;
-                } else {
-                    html += `<td class="map-cell empty-cell"><div class="map-badge empty">—</div></td>`;
-                }
-            });
-            html += '</tr>';
-        });
-
-        html += '</tbody></table>';
-        wrap.innerHTML = html;
     }
 
-    // ── POPOVER ───────────────────────────────────────────────────────────────────
-    let pinned = false;
-
-    function showPop(e, cid, oi) {
-        if (pinned) return;
-        _buildPop(cid, oi, false);
-        _placePop(e);
-    }
-    function hidePop() {
-        if (pinned) return;
-        document.getElementById('popover').classList.remove('visible');
-    }
-    function clickPop(e, cid, oi) {
-        const m = getM(cid, oi);
-        if (!m.level) return;
-        if (pinned) { pinned = false; document.getElementById('popover').classList.remove('visible'); return; }
-        pinned = true;
-        _buildPop(cid, oi, true);
-        _placePop(e);
-    }
-    document.addEventListener('click', e => {
-        if (pinned && !e.target.closest('.map-cell') && !e.target.closest('.popover')) {
-            pinned = false;
-            document.getElementById('popover').classList.remove('visible');
-        }
-    });
-
-    function _buildPop(cid, oi, isPinned) {
-        const m      = getM(cid, oi);
-        const course = courseList.find(c => c.id === cid);
-        if (!m.level) return;
-        const pop = document.getElementById('popover');
-        pop.innerHTML = `
-    <div class="pop-out-label">Outcome ${oi + 1}</div>
-    <div class="pop-course-name">${course ? (course.name || 'Course') : 'Course'}</div>
-    <span class="pop-badge ${m.level}">${m.level} — ${LEVEL_NAMES[m.level]}</span>
-    ${m.activities ? `<div class="pop-section"><span class="pop-section-label">C — Instructional Activities</span><div class="pop-section-text">${m.activities}</div></div>` : ''}
-    ${m.assessment ? `<div class="pop-section"><span class="pop-section-label">D — Assessment</span><div class="pop-section-text">${m.assessment}</div></div>` : ''}
-    ${!m.activities && !m.assessment ? `<div class="pop-empty">No activities or assessment entered yet.</div>` : ''}
-    ${isPinned ? `<div class="pop-pin-hint">Click cell again or anywhere to close</div>` : `<div class="pop-pin-hint">Click to pin · hover to preview</div>`}
-  `;
-    }
-
-    function _placePop(e) {
-        const pop = document.getElementById('popover');
-        pop.classList.add('visible');
-        const pw = 300, ph = pop.offsetHeight || 180;
-        let left = e.clientX + 14;
-        let top  = e.clientY + 14;
-        if (left + pw > window.innerWidth  - 12) left = e.clientX - pw - 14;
-        if (top  + ph > window.innerHeight - 12) top  = e.clientY - ph - 14;
-        pop.style.left = left + 'px';
-        pop.style.top  = top  + 'px';
-    }
-
-    // ── VALIDATE & BUILD ──────────────────────────────────────────────────────────
     function validate() {
-        if (!document.getElementById('fname').value.trim())  { toast('⚠ Please enter your first name.');    return false; }
-        if (!document.getElementById('lname').value.trim())  { toast('⚠ Please enter your last name.');     return false; }
-        if (!document.getElementById('email').value.trim())  { toast('⚠ Please enter your email address.'); return false; }
-        if (!courseList.some(c => c.name.trim()))             { toast('⚠ Please enter at least one course name.'); return false; }
-        if (!courseList.some(c => OUTCOMES.some((_,i) => getM(c.id,i).level))) {
-            toast('⚠ Please address at least one program outcome.'); return false;
-        }
+        if(!document.getElementById('fname').value.trim())       { toast('⚠ Please enter your first name.','error'); return false; }
+        if(!document.getElementById('lname').value.trim())       { toast('⚠ Please enter your last name.','error'); return false; }
+        if(!document.getElementById('email').value.trim())       { toast('⚠ Please enter your email address.','error'); return false; }
+        if(!document.getElementById('course-name').value.trim()) { toast('⚠ Please enter your course name.','error'); return false; }
+        if(!OUTCOMES.some((_,i)=>state[i].level))                { toast('⚠ Please address at least one program outcome.','error'); return false; }
         return true;
     }
 
     function buildPayload() {
         return {
-            submitted:  new Date().toISOString(),
+            submitted: new Date().toISOString(),
             instructor: {
                 firstName: document.getElementById('fname').value.trim(),
                 lastName:  document.getElementById('lname').value.trim(),
                 email:     document.getElementById('email').value.trim(),
                 title:     document.getElementById('atitle').value.trim(),
             },
+            course: {
+                name: document.getElementById('course-name').value.trim(),
+                code: document.getElementById('course-code').value.trim(),
+                hp:   document.getElementById('course-hp').value.trim(),
+            },
             program: PROGRAM,
-            courses: courseList.map(course => ({
-                name: course.name,
-                code: course.code,
-                hp:   course.hp,
-                mapping: OUTCOMES.map((o,i) => {
-                    const m = getM(course.id, i);
-                    return { outcome: o, level: m.level || null, activities: m.activities, assessment: m.assessment };
-                })
+            mapping: OUTCOMES.map((o,i) => ({
+                outcome: o,
+                level:   state[i].level || '',
+                activities: state[i].activities,
+                assessment: state[i].assessment,
             })),
             indirect: document.getElementById('indirect').value.trim(),
         };
     }
 
-    // ── SUBMIT ────────────────────────────────────────────────────────────────────
-    async function submitForm() {
-        if (!validate()) return;
+    async function submit() {
+        if(!validate()) return;
         const payload = buildPayload();
+
+        // If no URL configured, warn but let them download
+        if(!SCRIPT_URL) {
+            toast('⚠ No Google Sheets URL configured. Downloading JSON instead.','error');
+            dl(payload);
+            return;
+        }
+
+        // Set loading state
         const btn = document.getElementById('submit-btn');
+        btn.classList.add('loading');
         btn.disabled = true;
-        btn.textContent = '⏳ Submitting…';
+
         try {
-            await fetch(APPS_SCRIPT_URL, { method:'POST', mode:'no-cors', body:JSON.stringify(payload) });
-            window.lastPayload = payload;
-            document.getElementById('main-wrap').innerHTML = `
-      <div class="card"><div class="success-screen">
-        <div class="success-ring"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <h3>Thank you, ${payload.instructor.firstName}!</h3>
-        <p>Your curriculum map for <strong>${payload.courses.map(c=>c.name||'untitled').join(', ')}</strong> has been submitted. The programme coordinator will compile all submissions into the consolidated map.</p>
-        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-          <button class="btn btn-primary" onclick="location.reload()">Submit Another Response</button>
-          <button class="btn btn-ghost" onclick="dlJSON(lastPayload)">↓ Download My Submission</button>
-        </div>
-      </div></div>`;
-            window.scrollTo({top:0,behavior:'smooth'});
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',           // required for Apps Script
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            // no-cors means we can't read the response, but if no error = success
+            window._lastPayload = payload;
+            showSuccess(payload);
         } catch(err) {
-            toast('⚠ Submission failed — please try Download as JSON.');
+            toast('✗ Submission failed. Please try again or download JSON.','error');
+            btn.classList.remove('loading');
             btn.disabled = false;
-            btn.textContent = '✓ Submit My Map';
         }
     }
 
-    function exportJSON() {
-        if (!validate()) return;
-        dlJSON(buildPayload());
-        toast('✓ JSON downloaded.');
+    function showSuccess(payload) {
+        document.getElementById('main-wrap').innerHTML = `
+    <div class="card">
+      <div class="success-screen">
+        <div class="success-ring"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <h3>Thank you, ${payload.instructor.firstName}!</h3>
+        <p>Your curriculum map for <strong>${payload.course.name}</strong> has been saved to the shared spreadsheet. The programme coordinator will compile all submissions.</p>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="location.reload()">Submit Another Response</button>
+          <button class="btn btn-ghost" onclick="dl(window._lastPayload)">↓ Download My Copy</button>
+        </div>
+      </div>
+    </div>`;
+        window.scrollTo({top:0,behavior:'smooth'});
     }
 
-    function dlJSON(p) {
+    function dl(payload) {
+        const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([JSON.stringify(p,null,2)],{type:'application/json'}));
-        a.download = `curriculum-map-${p.instructor.lastName.toLowerCase()}.json`;
+        a.href = URL.createObjectURL(blob);
+        a.download = `curriculum-map-${(payload.instructor.lastName||'response').toLowerCase()}.json`;
         a.click();
     }
 
-    function toast(msg) {
+    function toast(msg, type='') {
         const t = document.getElementById('toast');
         t.textContent = msg;
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 3500);
+        t.className = `toast${type?' '+type:''} show`;
+        setTimeout(()=> t.classList.remove('show'), 4000);
     }
 
-    function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
-
-    // ── INIT ──────────────────────────────────────────────────────────────────────
-    addCourse();
+    renderOutcomes();
+    initChart();
+    updateStats();
 </script>
 </body>
 </html>
