@@ -51,7 +51,7 @@
         .hdr-icon svg { width:18px; height:18px; fill:none; stroke:white; stroke-width:2.2; }
         .hdr h1 { font-family:'EB Garamond',serif; font-size:1.2rem; font-weight:500; color:white; }
         .hdr h1 em { color:var(--teal-light); }
-        .hdr-right { font-size:.72rem; color:rgba(255,255,255,.35); letter-spacing:.07em; text-transform:uppercase; }
+        .hdr-right { font-family:'EB Garamond',serif; font-size:1rem; font-style:italic; color:var(--teal-light); letter-spacing:.01em; }
 
         .wrap { max-width:860px; margin:0 auto; padding:36px 24px 80px; display:flex; flex-direction:column; gap:20px; }
 
@@ -103,9 +103,10 @@
         .outcome-block.has-I { border-color:var(--I); }
         .outcome-block.has-A { border-color:var(--A); }
         .outcome-block.has-M { border-color:var(--M); }
-        .ob-top { padding:14px 18px; background:var(--gray-50); border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:12px; }
-        .ob-num { font-size:.68rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--gray-400); padding-top:2px; white-space:nowrap; min-width:64px; }
-        .ob-text { font-family:'EB Garamond',serif; font-size:1rem; color:var(--navy); line-height:1.5; flex:1; }
+        .ob-top { padding:14px 18px; background:var(--gray-50); border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:8px; }
+        .ob-top-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+        .ob-num { font-size:.68rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--gray-400); white-space:nowrap; }
+        .ob-text { font-family:'EB Garamond',serif; font-size:.97rem; color:var(--gray-700); line-height:1.5; }
         .ob-iam { display:flex; gap:5px; flex-shrink:0; }
         .iam-btn {
             width:36px; height:36px; border-radius:6px; border:1.5px solid var(--border);
@@ -211,6 +212,7 @@
                 </div>
                 <div class="field"><label>Course Code</label><input type="text" id="course-code" placeholder="e.g. BIO2401"></div>
                 <div class="field"><label>Credits (hp)</label><input type="text" id="course-hp" placeholder="e.g. 7.5"></div>
+                <div class="field full"><label>Program *</label><input type="text" id="program" placeholder="e.g. Master's Programme in Public Health"></div>
             </div>
         </div>
     </div>
@@ -293,7 +295,6 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx80jZYKloxswYdjMOGf7uqKUfGtUNH9ICvniXKxHLzx_gPG9ddln0kugkb_KB6WUY/exec";
     // ─────────────────────────────────────────────────────────────────────────────
 
-    const PROGRAM  = "Generic Public Policy Programme";
     const OUTCOMES = [
         "Describe organizational and bureaucratic structures involved in policy development",
         "Use knowledge and abilities to solve a problem in any context",
@@ -315,13 +316,15 @@
             el.className = 'outcome-block'; el.id = `ob-${i}`;
             el.innerHTML = `
       <div class="ob-top">
-        <span class="ob-num">Outcome ${i+1}</span>
-        <span class="ob-text">${o}</span>
-        <div class="ob-iam">
-          <button class="iam-btn" id="btn-I-${i}" title="Introductory" onclick="setLevel(${i},'I')">I</button>
-          <button class="iam-btn" id="btn-A-${i}" title="Advanced"     onclick="setLevel(${i},'A')">A</button>
-          <button class="iam-btn" id="btn-M-${i}" title="Mastery"      onclick="setLevel(${i},'M')">M</button>
+        <div class="ob-top-row">
+          <span class="ob-num">Outcome ${i+1}</span>
+          <div class="ob-iam">
+            <button class="iam-btn" id="btn-I-${i}" title="Introductory" onclick="setLevel(${i},'I')">I</button>
+            <button class="iam-btn" id="btn-A-${i}" title="Advanced"     onclick="setLevel(${i},'A')">A</button>
+            <button class="iam-btn" id="btn-M-${i}" title="Mastery"      onclick="setLevel(${i},'M')">M</button>
+          </div>
         </div>
+        <span class="ob-text">${o}</span>
       </div>
       <div class="ob-fields" id="fields-${i}" style="display:none">
         <div class="ob-field">
@@ -384,6 +387,7 @@
         if (!document.getElementById('lname').value.trim())       { toast('⚠ Please enter your last name.','error'); return false; }
         if (!document.getElementById('email').value.trim())       { toast('⚠ Please enter your email address.','error'); return false; }
         if (!document.getElementById('course-name').value.trim()) { toast('⚠ Please enter your course name.','error'); return false; }
+        if (!document.getElementById('program').value.trim())     { toast('⚠ Please enter your program name.','error'); return false; }
         if (!OUTCOMES.some((_,i) => state[i].level))              { toast('⚠ Please address at least one program outcome.','error'); return false; }
         return true;
     }
@@ -402,7 +406,7 @@
                 code: document.getElementById('course-code').value.trim(),
                 hp:   document.getElementById('course-hp').value.trim(),
             },
-            program: PROGRAM,
+            program: document.getElementById('program').value.trim(),
             mapping: OUTCOMES.map((o,i) => ({
                 outcome:    o,
                 level:      state[i].level || '',
