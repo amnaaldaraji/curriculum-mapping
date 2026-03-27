@@ -5,505 +5,898 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Curriculum Mapping Tool</title>
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <style>
         :root {
-            --navy:       #0d2137;
-            --teal:       #006D77;
-            --teal-light: #83C5BE;
-            --teal-muted: #EDF6F9;
-            --gold:       #B5985A;
-            --gold-light: #F5EDD8;
-            --I:  #006D77; --Ibg: #EDF6F9;
-            --A:  #B5985A; --Abg: #F5EDD8;
-            --M:  #2D6A9F; --Mbg: #EAF2FB;
-            --border: #D4D8E0;
-            --gray-50:  #F7F8FA;
-            --gray-100: #ECEEF2;
-            --gray-200: #D4D8E0;
-            --gray-400: #8C94A6;
-            --gray-700: #3A4356;
-            --text:     #111827;
-            --r: 6px;
+            --navy:#0d2137; --teal:#006D77; --teal-light:#83C5BE; --teal-muted:#EDF6F9;
+            --border:#D4D8E0; --gray-50:#F7F8FA; --gray-100:#ECEEF2;
+            --gray-400:#8C94A6; --gray-700:#3A4356; --text:#111827; --r:6px;
         }
-        *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
-        html { scroll-behavior: smooth; }
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: #F0F2F6;
-            color: var(--text);
-            min-height: 100vh;
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        html{scroll-behavior:smooth}
+        body{font-family:'DM Sans',sans-serif;background:#F0F2F6;color:var(--text);min-height:100vh}
+
+        /* GDPR */
+        #gdpr-page{min-height:100vh;background:#F0F2F6;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+        .gdpr-card{background:white;border-radius:12px;box-shadow:0 2px 8px rgba(13,33,55,.1);max-width:720px;width:100%;overflow:hidden}
+        .gdpr-header{background:var(--navy);padding:22px 26px;display:flex;align-items:center;gap:12px}
+        .gdpr-header svg{flex-shrink:0}
+        .gdpr-header h1{font-family:'EB Garamond',serif;font-size:1.3rem;font-weight:500;color:white;line-height:1.3}
+        .gdpr-header h1 em{color:var(--teal-light)}
+        .gdpr-body{padding:24px 26px;display:flex;flex-direction:column;gap:20px}
+        .gdpr-section h3{font-family:'EB Garamond',serif;font-size:1.05rem;font-weight:600;color:var(--navy);margin-bottom:8px}
+        .gdpr-section p{font-size:.85rem;color:var(--gray-700);line-height:1.75}
+        .gdpr-section ul{margin:8px 0 0 18px;display:flex;flex-direction:column;gap:4px}
+        .gdpr-section ul li{font-size:.85rem;color:var(--gray-700);line-height:1.65}
+        .gdpr-section ul li strong{color:var(--navy)}
+        .gdpr-divider{height:1px;background:var(--border)}
+        .gdpr-consent{background:var(--gray-50);border:1.5px solid var(--border);border-radius:8px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px}
+        .gdpr-consent input[type=checkbox]{width:17px;height:17px;margin-top:2px;accent-color:var(--teal);flex-shrink:0;cursor:pointer}
+        .gdpr-consent label{font-size:.84rem;color:var(--gray-700);line-height:1.6;cursor:pointer}
+        .gdpr-footer{padding:0 26px 24px;display:flex;justify-content:flex-end}
+        .gdpr-btn{background:var(--teal);color:white;border:none;border-radius:var(--r);padding:11px 22px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .15s;opacity:.45;pointer-events:none}
+        .gdpr-btn.ready{opacity:1;pointer-events:auto}
+        .gdpr-btn.ready:hover{background:#005a62}
+
+        /* HEADER */
+        .hdr{background:var(--navy);height:56px;display:flex;align-items:center;padding:0 20px;position:sticky;top:0;z-index:100;border-bottom:3px solid var(--teal)}
+        .hdr-icon{width:32px;height:32px;background:var(--teal);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:12px}
+        .hdr-icon svg{width:16px;height:16px;fill:none;stroke:white;stroke-width:2.2}
+        .hdr h1{font-family:'EB Garamond',serif;font-size:1.05rem;font-weight:500;color:white;line-height:1.3}
+        .hdr h1 em{color:var(--teal-light)}
+
+        /* STEP BAR */
+        .step-bar{background:white;border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:0}
+        .step{display:flex;align-items:center;gap:8px;padding:12px 16px 12px 0;opacity:.4;transition:opacity .2s}
+        .step.active{opacity:1}
+        .step.done{opacity:.7}
+        .step-num{width:22px;height:22px;border-radius:50%;background:var(--gray-100);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--gray-400);flex-shrink:0;transition:all .2s}
+        .step.active .step-num{background:var(--teal);border-color:var(--teal);color:white}
+        .step.done .step-num{background:var(--navy);border-color:var(--navy);color:white}
+        .step-label{font-size:.75rem;font-weight:600;color:var(--gray-400);white-space:nowrap}
+        .step.active .step-label{color:var(--navy)}
+        .step-sep{width:20px;height:1px;background:var(--border);flex-shrink:0}
+
+        /* WRAP + CARD */
+        .wrap{max-width:860px;margin:0 auto;padding:18px 12px 80px;display:flex;flex-direction:column;gap:14px}
+        .card{background:white;border-radius:10px;box-shadow:0 1px 3px rgba(13,33,55,.07),0 4px 16px rgba(13,33,55,.05);overflow:hidden}
+
+        /* COURSE INFO */
+        .info-hero{background:linear-gradient(135deg,var(--navy) 0%,#1a3a54 100%);padding:26px 22px;color:white}
+        .info-hero h2{font-family:'EB Garamond',serif;font-size:1.65rem;font-weight:500;margin-bottom:8px;line-height:1.3}
+        .info-hero h2 em{color:var(--teal-light)}
+        .info-hero p{font-size:.86rem;color:rgba(255,255,255,.8);line-height:1.7}
+        .info-form{padding:24px 22px;display:flex;flex-direction:column;gap:18px}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .form-group{display:flex;flex-direction:column;gap:6px}
+        .form-label{font-size:.78rem;font-weight:600;color:var(--navy)}
+        .form-label span{color:#c0392b}
+        .form-input,.form-select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:.85rem;color:var(--text);background:white;transition:border-color .15s;outline:none;-webkit-appearance:none;appearance:none}
+        .form-input:focus,.form-select:focus{border-color:var(--teal)}
+        .form-input.error,.form-select.error{border-color:#c0392b}
+        .form-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238C94A6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;cursor:pointer}
+        .info-footer{padding:16px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end}
+        .btn-primary{background:var(--teal);color:white;border:none;border-radius:var(--r);padding:11px 22px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .15s}
+        .btn-primary:hover{background:#005a62}
+        .btn-secondary{background:white;color:var(--gray-700);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 18px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s}
+        .btn-secondary:hover{border-color:var(--teal);color:var(--teal)}
+
+        /* SURVEY */
+        .survey-hero{background:linear-gradient(135deg,var(--navy) 0%,#1a3a54 100%);padding:22px;color:white}
+        .survey-hero h2{font-family:'EB Garamond',serif;font-size:1.4rem;font-weight:500;margin-bottom:6px}
+        .survey-hero h2 em{color:var(--teal-light)}
+        .survey-hero p{font-size:.82rem;color:rgba(255,255,255,.8);line-height:1.6}
+        .survey-meta{padding:12px 18px;background:var(--gray-50);border-bottom:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap}
+        .survey-meta-item{font-size:.78rem;color:var(--gray-700)}
+        .survey-meta-item strong{color:var(--navy)}
+        .level-legend{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+        .level-legend-label{font-size:.67rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-400);margin-right:4px}
+        .legend-item{display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;border:1.5px solid var(--border);font-size:.72rem;font-weight:600;color:var(--gray-700)}
+        .legend-item.li-I{background:#EDF6F9;border-color:var(--teal-light);color:var(--teal)}
+        .legend-item.li-A{background:#FFF3E0;border-color:#FFB74D;color:#E65100}
+        .legend-item.li-M{background:#E8F5E9;border-color:#81C784;color:#2E7D32}
+        .legend-item.li-N{background:var(--gray-50);border-color:var(--border);color:var(--gray-400)}
+        .survey-progress{padding:10px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+        .prog-bar{flex:1;height:5px;background:var(--gray-100);border-radius:3px;overflow:hidden}
+        .prog-fill{height:100%;background:var(--teal);border-radius:3px;transition:width .4s}
+        .prog-label{font-size:.7rem;color:var(--gray-400);white-space:nowrap}
+        .cat-section{padding:0 18px}
+        .cat-header{padding:16px 0 10px;border-bottom:1px solid var(--border);margin-bottom:12px}
+        .cat-header h3{font-family:'EB Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--navy)}
+        .dim-block{border:1.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px;transition:border-color .2s}
+        .dim-block.answered{border-color:var(--teal)}
+        .dim-header{background:var(--gray-50);padding:12px 14px;border-bottom:1px solid var(--border)}
+        .dim-id{font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gray-400);margin-bottom:3px}
+        .dim-title{font-family:'EB Garamond',serif;font-size:1rem;font-weight:600;color:var(--navy);margin-bottom:4px}
+        .dim-desc{font-size:.78rem;color:var(--gray-700);line-height:1.55}
+        .level-btns{display:flex;gap:6px;padding:12px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+        .level-btn{padding:8px 16px;border-radius:6px;border:1.5px solid var(--border);background:white;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;color:var(--gray-400);cursor:pointer;transition:all .12s}
+        .level-btn:hover{border-color:var(--gray-400);color:var(--gray-700)}
+        .level-btn.sel-I{background:#EDF6F9;border-color:var(--teal);color:var(--teal)}
+        .level-btn.sel-A{background:#FFF3E0;border-color:#FFB74D;color:#E65100}
+        .level-btn.sel-M{background:#E8F5E9;border-color:#81C784;color:#2E7D32}
+        .level-btn.sel-N{background:var(--gray-100);border-color:var(--gray-400);color:var(--gray-700)}
+        .dim-fields{padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+        .field-group{display:flex;flex-direction:column;gap:5px}
+        .field-label{font-size:.72rem;font-weight:600;color:var(--navy)}
+        .field-hint{font-size:.68rem;color:var(--gray-400);line-height:1.5}
+        .field-ta,.reason-ta{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--text);line-height:1.5;resize:vertical;min-height:70px;outline:none;transition:border-color .15s}
+        .reason-ta{min-height:80px}
+        .field-ta:focus,.reason-ta:focus{border-color:var(--teal)}
+        .field-ta.error,.reason-ta.error{border-color:#c0392b}
+        .na-note{font-size:.8rem;color:var(--gray-700);line-height:1.6;padding:10px 14px;background:var(--gray-50);border-radius:6px}
+        .survey-footer{padding:16px 18px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px}
+
+        /* DONE */
+        .done-card{background:white;border-radius:10px;box-shadow:0 1px 3px rgba(13,33,55,.07),0 4px 16px rgba(13,33,55,.05);overflow:hidden}
+        .done-hero{background:linear-gradient(135deg,var(--navy) 0%,#1a3a54 100%);padding:40px 30px;text-align:center;color:white}
+        .done-icon{width:60px;height:60px;background:var(--teal);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+        .done-icon svg{width:28px;height:28px;fill:none;stroke:white;stroke-width:2.5}
+        .done-hero h2{font-family:'EB Garamond',serif;font-size:1.8rem;font-weight:500;margin-bottom:12px;line-height:1.3}
+        .done-hero h2 em{color:var(--teal-light)}
+        .done-hero p{font-size:.9rem;color:rgba(255,255,255,.85);line-height:1.75;max-width:520px;margin:0 auto}
+        .done-actions{padding:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+        .pdf-btn{background:var(--teal);color:white;border:none;border-radius:var(--r);padding:11px 22px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:7px}
+        .pdf-btn:hover{background:#005a62}
+        .restart-btn{background:white;color:var(--navy);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 18px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .15s}
+        .restart-btn:hover{border-color:var(--navy)}
+
+        /* PRINT */
+        @media print{
+            #gdpr-page,.hdr,.step-bar,.survey-meta,.level-legend,.survey-progress,.survey-footer,.done-actions,.info-footer,.level-btns{display:none!important}
+            body{background:white}
+            .wrap{padding:0;max-width:100%}
+            .card,.dim-block,.done-card{box-shadow:none;border:1px solid #ccc}
+            .dim-block{page-break-inside:avoid}
         }
-
-        .hdr {
-            background: var(--navy);
-            height: 64px;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 40px;
-            position: sticky; top: 0; z-index: 50;
-            border-bottom: 3px solid var(--teal);
+        @media(max-width:600px){
+            .form-row{grid-template-columns:1fr}
+            .level-btns{gap:4px}
+            .level-btn{padding:7px 12px;font-size:.74rem}
         }
-        .hdr-left { display:flex; align-items:center; gap:14px; }
-        .hdr-icon {
-            width:36px; height:36px; background:var(--teal); border-radius:5px;
-            display:flex; align-items:center; justify-content:center;
-        }
-        .hdr-icon svg { width:18px; height:18px; fill:none; stroke:white; stroke-width:2.2; }
-        .hdr h1 { font-family:'EB Garamond',serif; font-size:1.2rem; font-weight:500; color:white; }
-        .hdr h1 em { color:var(--teal-light); }
-        .hdr-right { font-family:'EB Garamond',serif; font-size:1rem; font-style:italic; color:var(--teal-light); letter-spacing:.01em; }
-
-        .wrap { max-width:860px; margin:0 auto; padding:36px 24px 80px; display:flex; flex-direction:column; gap:20px; }
-
-        .card { background:white; border-radius:10px; box-shadow:0 1px 3px rgba(13,33,55,.07),0 4px 16px rgba(13,33,55,.05); overflow:hidden; }
-        .card-hdr { padding:18px 28px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
-        .card-hdr-num {
-            width:28px; height:28px; background:var(--navy); border-radius:50%;
-            display:flex; align-items:center; justify-content:center;
-            font-size:.75rem; font-weight:700; color:white; flex-shrink:0;
-        }
-        .card-hdr h2 { font-family:'EB Garamond',serif; font-size:1.15rem; font-weight:500; color:var(--navy); }
-        .card-hdr .sub { font-size:.75rem; color:var(--gray-400); margin-top:1px; }
-        .card-body { padding:28px; }
-
-        .field-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-        .field { display:flex; flex-direction:column; gap:5px; }
-        .field.full { grid-column:1/-1; }
-        label { font-size:.73rem; font-weight:600; color:var(--gray-700); letter-spacing:.045em; text-transform:uppercase; }
-        input, textarea {
-            font-family:'DM Sans',sans-serif; font-size:.9rem; color:var(--text);
-            border:1.5px solid var(--border); border-radius:var(--r); padding:10px 13px;
-            background:white; transition:border-color .15s,box-shadow .15s; width:100%;
-        }
-        input:focus, textarea:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(0,109,119,.11); }
-        textarea { resize:vertical; min-height:60px; }
-        .hint { font-size:.72rem; color:var(--gray-400); font-style:italic; margin-top:3px; }
-
-        .iam-guide { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:24px; }
-        .iam-card { border-radius:8px; padding:12px 14px; border:1.5px solid; display:flex; align-items:flex-start; gap:10px; }
-        .iam-card.I { background:var(--Ibg); border-color:rgba(0,109,119,.3); }
-        .iam-card.A { background:var(--Abg); border-color:rgba(181,152,90,.3); }
-        .iam-card.M { background:var(--Mbg); border-color:rgba(45,106,159,.3); }
-        .iam-letter { font-family:'EB Garamond',serif; font-size:1.5rem; font-weight:600; line-height:1; flex-shrink:0; }
-        .iam-card.I .iam-letter { color:var(--I); }
-        .iam-card.A .iam-letter { color:var(--A); }
-        .iam-card.M .iam-letter { color:var(--M); }
-        .iam-text .t { font-size:.78rem; font-weight:600; color:var(--navy); display:block; margin-bottom:2px; }
-        .iam-text .d { font-size:.72rem; color:var(--gray-700); line-height:1.4; }
-
-        .prog-wrap { padding:0 28px 20px; }
-        .prog-top { display:flex; justify-content:space-between; margin-bottom:6px; }
-        .prog-top span { font-size:.75rem; color:var(--gray-400); }
-        .prog-top strong { font-size:.75rem; color:var(--teal); font-weight:600; }
-        .prog-track { height:6px; background:var(--gray-100); border-radius:3px; overflow:hidden; }
-        .prog-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--teal),var(--teal-light)); transition:width .4s ease; }
-
-        .outcomes-wrap { display:flex; flex-direction:column; gap:16px; }
-        .outcome-block { border:1.5px solid var(--border); border-radius:8px; overflow:hidden; transition:border-color .2s; }
-        .outcome-block.has-I { border-color:var(--I); }
-        .outcome-block.has-A { border-color:var(--A); }
-        .outcome-block.has-M { border-color:var(--M); }
-        .ob-top { padding:14px 18px; background:var(--gray-50); border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:8px; }
-        .ob-top-row { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-        .ob-num { font-size:.68rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--gray-400); white-space:nowrap; }
-        .ob-text { font-family:'EB Garamond',serif; font-size:.97rem; color:var(--gray-700); line-height:1.5; }
-        .ob-iam { display:flex; gap:5px; flex-shrink:0; }
-        .iam-btn {
-            width:36px; height:36px; border-radius:6px; border:1.5px solid var(--border);
-            background:white; font-size:.83rem; font-weight:700; color:var(--gray-400);
-            cursor:pointer; transition:all .12s; display:flex; align-items:center; justify-content:center;
-        }
-        .iam-btn:hover { border-color:var(--gray-400); color:var(--gray-700); }
-        .iam-btn.on-I { background:var(--Ibg); border-color:var(--I); color:var(--I); }
-        .iam-btn.on-A { background:var(--Abg); border-color:var(--A); color:var(--A); }
-        .iam-btn.on-M { background:var(--Mbg); border-color:var(--M); color:var(--M); }
-        .ob-fields { padding:16px 18px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-        .ob-field label { font-size:.68rem; font-weight:600; color:var(--gray-400); letter-spacing:.05em; text-transform:uppercase; display:block; margin-bottom:4px; }
-        .ob-field textarea { font-size:.82rem; min-height:58px; padding:8px 10px; color:var(--gray-700); }
-
-        .chart-hdr { background:var(--navy); padding:16px 28px; border-bottom:3px solid var(--gold); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
-        .chart-hdr h3 { font-family:'EB Garamond',serif; font-size:1.05rem; color:white; font-weight:500; }
-        .chart-hdr p { font-size:.72rem; color:rgba(255,255,255,.4); margin-top:2px; }
-        .chart-legend { display:flex; gap:14px; }
-        .cl { display:flex; align-items:center; gap:5px; font-size:.72rem; color:rgba(255,255,255,.7); }
-        .cl-dot { width:8px; height:8px; border-radius:50%; }
-        .chart-body { padding:24px 28px; display:grid; grid-template-columns:200px 1fr; gap:28px; align-items:center; }
-        .donut-wrap { position:relative; width:200px; height:200px; }
-        .donut-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; }
-        .donut-center .big { font-family:'EB Garamond',serif; font-size:2rem; color:var(--navy); line-height:1; }
-        .donut-center .sm { font-size:.68rem; color:var(--gray-400); margin-top:2px; }
-        .stat-pills { display:flex; flex-direction:column; gap:10px; }
-        .sp { border-radius:8px; padding:12px 16px; display:flex; align-items:center; gap:14px; border:1.5px solid; }
-        .sp.I { background:var(--Ibg); border-color:rgba(0,109,119,.2); }
-        .sp.A { background:var(--Abg); border-color:rgba(181,152,90,.2); }
-        .sp.M { background:var(--Mbg); border-color:rgba(45,106,159,.2); }
-        .sp-count { font-family:'EB Garamond',serif; font-size:1.8rem; font-weight:600; line-height:1; min-width:32px; text-align:center; }
-        .sp.I .sp-count { color:var(--I); }
-        .sp.A .sp-count { color:var(--A); }
-        .sp.M .sp-count { color:var(--M); }
-        .sp-label { font-size:.8rem; color:var(--gray-700); font-weight:500; }
-        .sp-sub { font-size:.68rem; color:var(--gray-400); }
-        .sp-bar-wrap { flex:1; }
-        .sp-bar { height:5px; border-radius:3px; margin-top:6px; transition:width .4s; }
-        .sp.I .sp-bar { background:var(--I); }
-        .sp.A .sp-bar { background:var(--A); }
-        .sp.M .sp-bar { background:var(--M); }
-
-        .btn { font-family:'DM Sans',sans-serif; font-size:.84rem; font-weight:600; padding:11px 24px; border-radius:var(--r); border:none; cursor:pointer; display:inline-flex; align-items:center; gap:7px; transition:all .15s; letter-spacing:.02em; }
-        .btn-primary { background:var(--teal); color:white; }
-        .btn-primary:hover { background:#005963; transform:translateY(-1px); box-shadow:0 4px 14px rgba(0,109,119,.3); }
-        .btn-ghost { background:var(--gray-100); color:var(--gray-700); border:1.5px solid var(--border); }
-        .btn-ghost:hover { background:var(--gray-200); }
-        .action-row { display:flex; gap:12px; flex-wrap:wrap; padding:24px 28px; border-top:1px solid var(--border); }
-
-        .submit-spinner { width:18px; height:18px; border:2px solid rgba(255,255,255,.3); border-top-color:white; border-radius:50%; animation:spin .7s linear infinite; display:none; }
-        @keyframes spin { to { transform:rotate(360deg); } }
-        .btn-primary.loading .submit-spinner { display:block; }
-        .btn-primary.loading .btn-label { opacity:.6; }
-
-        .toast { position:fixed; bottom:24px; right:24px; background:var(--navy); color:white; padding:11px 18px; border-radius:8px; font-size:.82rem; box-shadow:0 8px 24px rgba(0,0,0,.18); border-left:4px solid var(--teal); transform:translateY(80px); opacity:0; transition:all .3s ease; z-index:200; max-width:320px; }
-        .toast.show { transform:translateY(0); opacity:1; }
-        .toast.error { border-left-color:#E05858; }
-
-        .success-screen { text-align:center; padding:52px 28px; }
-        .success-ring { width:76px; height:76px; background:var(--teal); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; box-shadow:0 8px 28px rgba(0,109,119,.3); }
-        .success-ring svg { width:38px; height:38px; fill:none; stroke:white; stroke-width:2.5; }
-        .success-screen h3 { font-family:'EB Garamond',serif; font-size:1.7rem; color:var(--navy); margin-bottom:8px; }
-        .success-screen p { font-size:.85rem; color:var(--gray-400); max-width:420px; margin:0 auto 28px; line-height:1.65; }
-
         @media(max-width:900px){
             .wrap{padding:24px 16px 70px;}
-            .chart-body{grid-template-columns:180px 1fr; gap:18px;}
-            .donut-wrap{width:180px; height:180px;}
         }
         @media(max-width:640px){
             .field-row{grid-template-columns:1fr;}
-            .ob-fields{grid-template-columns:1fr;}
-            .ob-top{flex-wrap:wrap;}
-            .ob-top-row{flex-wrap:wrap;}
-            .chart-body{grid-template-columns:1fr;}
-            .donut-wrap{width:100%; max-width:220px; height:220px; margin:0 auto;}
-            .iam-guide{grid-template-columns:1fr;}
             .hdr{padding:0 16px; height:56px;}
             .hdr-right{display:none;}
             .wrap{padding:16px 12px 60px;}
             .card-body{padding:16px;}
             .action-row{padding:16px; flex-direction:column;}
             .btn{width:100%; justify-content:center;}
-            .chart-legend{flex-wrap:wrap; gap:8px;}
-            .ob-iam{flex-wrap:wrap;}
+            .lvl-btn{font-size:.8rem; padding:7px 12px;}
         }
         @media(max-width:480px){
             .hdr h1{font-size:1rem;}
             .card-hdr{padding:14px 16px;}
             .card-body{padding:12px;}
-            .prog-wrap{padding:0 16px 16px;}
-            .iam-guide{grid-template-columns:1fr;}
-            .ob-fields{grid-template-columns:1fr;}
-            .chart-hdr{padding:14px 16px; flex-direction:column; align-items:flex-start;}
-            .chart-legend{display:grid; grid-template-columns:1fr 1fr;}
         }
     </style>
 </head>
 <body>
 
-<header class="hdr">
-    <div class="hdr-left">
-        <div class="hdr-icon">
-            <svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 012-2h12a2 2 0 012 2v14"/><path d="M8 10h8M8 14h5"/></svg>
-        </div>
-        <h1>Curriculum Mapping <em>Tool</em></h1>
+<!-- GDPR PAGE -->
+<div id="gdpr-page">
+  <div class="gdpr-card">
+    <div class="gdpr-header">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <h1>Data Privacy Notice &amp; <em>Informed Consent</em></h1>
     </div>
-    <div class="hdr-right">Karolinska Institutet</div>
-</header>
-
-<div class="wrap" id="main-wrap">
-
-    <!-- CARD 1 -->
-    <div class="card">
-        <div class="card-hdr">
-            <div class="card-hdr-num">1</div>
-            <div><h2>Your Details &amp; Course</h2><div class="sub">Enter your name and the course you teach in this program</div></div>
-        </div>
-        <div class="card-body">
-            <div class="field-row">
-                <div class="field"><label>First Name *</label><input type="text" id="fname" placeholder="e.g. Anna"></div>
-                <div class="field"><label>Last Name *</label><input type="text" id="lname" placeholder="e.g. Lindström"></div>
-                <div class="field"><label>Email *</label><input type="text" id="email" placeholder="anna.lindstrom@ki.se"></div>
-                <div class="field"><label>Academic Title</label><input type="text" id="atitle" placeholder="e.g. Associate Professor"></div>
-                <div class="field full">
-                    <label>Course Name *</label>
-                    <input type="text" id="course-name" placeholder="e.g. Pharmacology I — the course you personally teach">
-                </div>
-                <div class="field"><label>Course Code</label><input type="text" id="course-code" placeholder="e.g. BIO2401"></div>
-                <div class="field"><label>Credits (hp)</label><input type="text" id="course-hp" placeholder="e.g. 7.5"></div>
-                <div class="field full"><label>Program *</label><input type="text" id="program" placeholder="e.g. Master's Programme in Public Health"></div>
-            </div>
-        </div>
+    <div class="gdpr-body">
+      <div class="gdpr-section">
+        <h3>What data is collected?</h3>
+        <p>This tool collects information about your course structure for curriculum mapping purposes. No personal identifiers (names, emails, or staff titles) are collected.</p>
+        <ul>
+          <li><strong>Course information:</strong> Course name, course code, programme, term, and credits.</li>
+          <li><strong>Curriculum data:</strong> Your selected competency levels and written responses for each dimension.</li>
+        </ul>
+      </div>
+      <div class="gdpr-divider"></div>
+      <div class="gdpr-section">
+        <h3>How will it be used?</h3>
+        <p>The data will be stored in a shared spreadsheet accessible to Tobias Alfvén at <a href="mailto:tobias.alfven@ki.se" style="color:var(--teal)">tobias.alfven@ki.se</a>. It will be used solely for the purpose of mapping and improving curriculum alignment across the programme.</p>
+      </div>
+      <div class="gdpr-divider"></div>
+      <div class="gdpr-section">
+        <h3>Legal basis &amp; your rights</h3>
+        <p>Data is processed under legitimate interest for educational quality assurance. You may request to review or withdraw your submission by contacting Tobias Alfvén at <a href="mailto:tobias.alfven@ki.se" style="color:var(--teal)">tobias.alfven@ki.se</a>.</p>
+      </div>
+      <div class="gdpr-divider"></div>
+      <div class="gdpr-section">
+        <h3>How can I access the survey results?</h3>
+        <p>To receive information about the results, please contact Jennifer Valcke at <a href="mailto:jennifer.valcke@ki.se" style="color:var(--teal)">jennifer.valcke@ki.se</a>.</p>
+      </div>
+      <div class="gdpr-consent">
+        <input type="checkbox" id="gdpr-checkbox" onchange="toggleGdprBtn()">
+        <label for="gdpr-checkbox">I have read and understood the data privacy notice above. I consent to my curriculum mapping responses being stored and used for programme coordination purposes.</label>
+      </div>
     </div>
-
-    <!-- CARD 2 -->
-    <div class="card">
-        <div class="card-hdr">
-            <div class="card-hdr-num">2</div>
-            <div><h2>Program Outcomes — Your Course's Contribution</h2><div class="sub">Select I / A / M for each outcome your course addresses. Leave blank if not addressed.</div></div>
-        </div>
-        <div style="padding:20px 28px 4px;">
-            <div class="iam-guide">
-                <div class="iam-card I"><span class="iam-letter">I</span><div class="iam-text"><span class="t">Introductory</span><span class="d">Students recall or explain basic concepts. Lower-order cognition.</span></div></div>
-                <div class="iam-card A"><span class="iam-letter">A</span><div class="iam-text"><span class="t">Advanced</span><span class="d">Students apply procedures or analyse how parts relate.</span></div></div>
-                <div class="iam-card M"><span class="iam-letter">M</span><div class="iam-text"><span class="t">Mastery</span><span class="d">Students evaluate evidence or create novel products/artefacts.</span></div></div>
-            </div>
-        </div>
-        <div class="prog-wrap">
-            <div class="prog-top"><span>Outcomes addressed by your course</span><strong id="prog-label">0 of 0</strong></div>
-            <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
-        </div>
-        <div class="outcomes-wrap" id="outcomes-wrap" style="padding:0 28px 28px;"></div>
+    <div class="gdpr-footer">
+      <button class="gdpr-btn" id="gdpr-proceed-btn" onclick="acceptGdpr()">Continue to Curriculum Mapping &#8594;</button>
     </div>
-
-    <!-- CARD 3 -->
-    <div class="card">
-        <div class="card-hdr">
-            <div class="card-hdr-num">3</div>
-            <div><h2>Indirect Measures</h2><div class="sub">Optional — surveys or focus groups that reflect outcomes from your course</div></div>
-        </div>
-        <div class="card-body">
-            <div class="field">
-                <label>Indirect measures</label>
-                <textarea id="indirect" placeholder="e.g. Employer survey, alumni focus group, graduating senior exit survey…" style="min-height:76px;"></textarea>
-                <div class="hint">These ask students or external stakeholders to report their perceptions of knowledge/skill gains</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CARD 4 — Live chart -->
-    <div class="card">
-        <div class="chart-hdr">
-            <div><h3>Live Overview</h3><p>Updates as you select levels above</p></div>
-            <div class="chart-legend">
-                <div class="cl"><div class="cl-dot" style="background:var(--I)"></div>Introductory</div>
-                <div class="cl"><div class="cl-dot" style="background:var(--A)"></div>Advanced</div>
-                <div class="cl"><div class="cl-dot" style="background:var(--M)"></div>Mastery</div>
-            </div>
-        </div>
-        <div class="chart-body">
-            <div class="donut-wrap">
-                <canvas id="donut-canvas"></canvas>
-                <div class="donut-center"><div class="big" id="donut-total">0</div><div class="sm">outcomes<br>addressed</div></div>
-            </div>
-            <div class="stat-pills">
-                <div class="sp I"><div class="sp-count" id="cnt-I">0</div><div class="sp-bar-wrap"><div class="sp-label">Introductory</div><div class="sp-sub">outcomes at this level</div><div class="sp-bar" style="background:var(--I);height:5px;border-radius:3px;margin-top:6px;transition:width .4s;width:0%" id="bar-I"></div></div></div>
-                <div class="sp A"><div class="sp-count" id="cnt-A">0</div><div class="sp-bar-wrap"><div class="sp-label">Advanced</div><div class="sp-sub">outcomes at this level</div><div class="sp-bar" style="background:var(--A);height:5px;border-radius:3px;margin-top:6px;transition:width .4s;width:0%" id="bar-A"></div></div></div>
-                <div class="sp M"><div class="sp-count" id="cnt-M">0</div><div class="sp-bar-wrap"><div class="sp-label">Mastery</div><div class="sp-sub">outcomes at this level</div><div class="sp-bar" style="background:var(--M);height:5px;border-radius:3px;margin-top:6px;transition:width .4s;width:0%" id="bar-M"></div></div></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SUBMIT -->
-    <div class="card">
-        <div class="action-row">
-            <button class="btn btn-primary" id="submit-btn" onclick="submit()">
-                <div class="submit-spinner" id="spinner"></div>
-                <span class="btn-label">✓ Submit My Map</span>
-            </button>
-            <button class="btn btn-ghost" onclick="if(confirm('Clear all entries and start over?'))location.reload()">↺ Start Over</button>
-        </div>
-    </div>
-
+  </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<!-- HEADER -->
+<div id="main-hdr" style="display:none">
+  <div class="hdr">
+    <div class="hdr-icon">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </div>
+    <h1>Curriculum <em>Mapping Tool</em></h1>
+  </div>
+  <div class="step-bar">
+    <div class="step active" id="step-1"><div class="step-num">1</div><div class="step-label">Course Info</div></div>
+    <div class="step-sep"></div>
+    <div class="step" id="step-2"><div class="step-num">2</div><div class="step-label">Survey</div></div>
+    <div class="step-sep"></div>
+    <div class="step" id="step-3"><div class="step-num">3</div><div class="step-label">Done</div></div>
+  </div>
+</div>
 
-<script>
-    // ─────────────────────────────────────────────────────────────────────────────
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx80jZYKloxswYdjMOGf7uqKUfGtUNH9ICvniXKxHLzx_gPG9ddln0kugkb_KB6WUY/exec";
-    // ─────────────────────────────────────────────────────────────────────────────
+<!-- MAIN WRAP -->
+<div id="main-wrap" style="display:none">
 
-    const OUTCOMES = [
-        "Describe organizational and bureaucratic structures involved in policy development",
-        "Use knowledge and abilities to solve a problem in any context",
-        "Develop ethically defensible solutions to issues",
-        "Formulate strategies to implement new policies",
-        "Effectively communicate ideas orally and in writing",
-        "Work effectively as a member of a team",
-    ];
-
-    const state = {};
-    OUTCOMES.forEach((_, i) => { state[i] = { level:'', activities:'', assessment:'' }; });
-    let donutChart;
-
-    function renderOutcomes() {
-        const wrap = document.getElementById('outcomes-wrap');
-        wrap.innerHTML = '';
-        OUTCOMES.forEach((o, i) => {
-            const el = document.createElement('div');
-            el.className = 'outcome-block'; el.id = `ob-${i}`;
-            el.innerHTML = `
-      <div class="ob-top">
-        <div class="ob-top-row">
-          <span class="ob-num">Outcome ${i+1}</span>
-          <div class="ob-iam">
-            <button class="iam-btn" id="btn-I-${i}" title="Introductory" onclick="setLevel(${i},'I')">I</button>
-            <button class="iam-btn" id="btn-A-${i}" title="Advanced"     onclick="setLevel(${i},'A')">A</button>
-            <button class="iam-btn" id="btn-M-${i}" title="Mastery"      onclick="setLevel(${i},'M')">M</button>
+  <!-- COURSE INFO -->
+  <div id="page-info" class="wrap" style="display:none">
+    <div class="card">
+      <div class="info-hero">
+        <h2>Course <em>Information</em></h2>
+        <p>Please provide details about the course you are mapping. No personal data is collected &#8212; course information only.</p>
+      </div>
+      <div class="info-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="course-name">Course Name <span>*</span></label>
+            <input class="form-input" id="course-name" type="text" placeholder="e.g. Introduction to Biomedicine">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="course-code">Course Code <span>*</span></label>
+            <input class="form-input" id="course-code" type="text" placeholder="e.g. BIO101">
           </div>
         </div>
-        <span class="ob-text">${o}</span>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="programme">Programme <span>*</span></label>
+            <select class="form-select" id="programme" onchange="updateTermOptions()">
+              <option value="">Select programme&#8230;</option>
+              <option value="bachelor-biomedicine">Bachelor in Biomedicine</option>
+              <option value="master-biomedicine">Master in Biomedicine</option>
+              <option value="master-bds">Master in Biomedical Data Science</option>
+              <option value="master-mtls">Master in Molecular Techniques and Life Science</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="term">Term <span>*</span></label>
+            <select class="form-select" id="term">
+              <option value="">Select programme first&#8230;</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="credits">Credits (hp) <span>*</span></label>
+            <input class="form-input" id="credits" type="number" min="1" max="60" step="0.5" placeholder="e.g. 7.5">
+          </div>
+        </div>
       </div>
-      <div class="ob-fields" id="fields-${i}" style="display:none">
-        <div class="ob-field">
-          <label>C — Instructional activities in your course</label>
-          <textarea placeholder="e.g. Case study, lecture, group discussion, lab session…"
-            oninput="state[${i}].activities=this.value">${state[i].activities}</textarea>
-        </div>
-        <div class="ob-field">
-          <label>D — How is this outcome assessed?</label>
-          <textarea placeholder="e.g. Final exam, oral presentation, written report…"
-            oninput="state[${i}].assessment=this.value">${state[i].assessment}</textarea>
-        </div>
-      </div>`;
-            wrap.appendChild(el);
-            refreshBlock(i);
-        });
-    }
+      <div class="info-footer">
+        <button class="btn-primary" onclick="goToSurvey()">Continue to Survey &#8594;</button>
+      </div>
+    </div>
+  </div>
 
-    function setLevel(i, lvl) {
-        state[i].level = (state[i].level === lvl) ? '' : lvl;
-        refreshBlock(i); updateStats();
-    }
-    function refreshBlock(i) {
-        const lvl = state[i].level;
-        ['I','A','M'].forEach(l => {
-            const b = document.getElementById(`btn-${l}-${i}`);
-            if (b) b.className = `iam-btn${lvl===l ? ` on-${l}` : ''}`;
-        });
-        const f = document.getElementById(`fields-${i}`); if (f) f.style.display = lvl ? '' : 'none';
-        const b = document.getElementById(`ob-${i}`); if (b) b.className = `outcome-block${lvl ? ` has-${lvl}` : ''}`;
-    }
-    function updateStats() {
-        let I=0,A=0,M=0;
-        OUTCOMES.forEach((_,i) => { if(state[i].level==='I')I++; else if(state[i].level==='A')A++; else if(state[i].level==='M')M++; });
-        const total=I+A+M, n=OUTCOMES.length, maxV=Math.max(I,A,M,1);
-        document.getElementById('prog-fill').style.width = (total/n*100)+'%';
-        document.getElementById('prog-label').textContent = `${total} of ${n}`;
-        document.getElementById('cnt-I').textContent = I;
-        document.getElementById('cnt-A').textContent = A;
-        document.getElementById('cnt-M').textContent = M;
-        document.getElementById('donut-total').textContent = total;
-        document.getElementById('bar-I').style.width = (I/maxV*100)+'%';
-        document.getElementById('bar-A').style.width = (A/maxV*100)+'%';
-        document.getElementById('bar-M').style.width = (M/maxV*100)+'%';
-        if (donutChart) { donutChart.data.datasets[0].data=[I,A,M]; donutChart.update(); }
-    }
-    function initChart() {
-        donutChart = new Chart(document.getElementById('donut-canvas'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Introductory (I)','Advanced (A)','Mastery (M)'],
-                datasets: [{ data:[0,0,0], backgroundColor:['rgba(0,109,119,.85)','rgba(181,152,90,.85)','rgba(45,106,159,.85)'], borderWidth:3, borderColor:'#fff', hoverOffset:8 }]
-            },
-            options: { responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${ctx.parsed}`}} } }
-        });
-    }
-
-    function validate() {
-        if (!document.getElementById('fname').value.trim())       { toast('⚠ Please enter your first name.','error'); return false; }
-        if (!document.getElementById('lname').value.trim())       { toast('⚠ Please enter your last name.','error'); return false; }
-        if (!document.getElementById('email').value.trim())       { toast('⚠ Please enter your email address.','error'); return false; }
-        if (!document.getElementById('course-name').value.trim()) { toast('⚠ Please enter your course name.','error'); return false; }
-        if (!document.getElementById('program').value.trim())     { toast('⚠ Please enter your program name.','error'); return false; }
-        if (!OUTCOMES.some((_,i) => state[i].level))              { toast('⚠ Please address at least one program outcome.','error'); return false; }
-        return true;
-    }
-
-    function buildPayload() {
-        return {
-            submitted: new Date().toISOString(),
-            instructor: {
-                firstName: document.getElementById('fname').value.trim(),
-                lastName:  document.getElementById('lname').value.trim(),
-                email:     document.getElementById('email').value.trim(),
-                title:     document.getElementById('atitle').value.trim(),
-            },
-            course: {
-                name: document.getElementById('course-name').value.trim(),
-                code: document.getElementById('course-code').value.trim(),
-                hp:   document.getElementById('course-hp').value.trim(),
-            },
-            program: document.getElementById('program').value.trim(),
-            mapping: OUTCOMES.map((o,i) => ({
-                outcome:    o,
-                level:      state[i].level || '',
-                activities: state[i].activities,
-                assessment: state[i].assessment,
-            })),
-            indirect: document.getElementById('indirect').value.trim(),
-        };
-    }
-
-    async function submit() {
-        if (!validate()) return;
-        const payload = buildPayload();
-
-        const btn = document.getElementById('submit-btn');
-        btn.classList.add('loading');
-        btn.disabled = true;
-
-        try {
-            // URLSearchParams = "simple request" → works with no-cors + Apps Script
-            const formData = new URLSearchParams();
-            formData.append('data', JSON.stringify(payload));
-
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode:   'no-cors',
-                body:   formData,
-            });
-
-            window._lastPayload = payload;
-            showSuccess(payload);
-        } catch(err) {
-            toast('✗ Submission failed. Please try again.', 'error');
-            btn.classList.remove('loading');
-            btn.disabled = false;
-        }
-    }
-
-    function showSuccess(payload) {
-        document.getElementById('main-wrap').innerHTML = `
+  <!-- SURVEY -->
+  <div id="page-survey" class="wrap" style="display:none">
     <div class="card">
-      <div class="success-screen">
-        <div class="success-ring"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-        <h3>Thank you, ${payload.instructor.firstName}!</h3>
-        <p>Your curriculum map for <strong>${payload.course.name}</strong> has been saved to the shared spreadsheet. The programme coordinator will compile all submissions.</p>
-        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="location.reload()">Submit Another Response</button>
-          <button class="btn btn-ghost" onclick="dl(window._lastPayload)">↓ Download My Copy</button>
-        </div>
+      <div class="survey-hero">
+        <h2>Curriculum <em>Mapping Survey</em></h2>
+        <p>For each dimension, select the level at which it is addressed in your course, then complete the fields. All dimensions must be completed before submission.</p>
       </div>
-    </div>`;
-        window.scrollTo({top:0,behavior:'smooth'});
-    }
+      <div class="survey-meta" id="survey-meta"></div>
+      <div class="level-legend">
+        <span class="level-legend-label">Level key:</span>
+        <span class="legend-item li-I"><strong>I</strong> &#8212; Introductory</span>
+        <span class="legend-item li-A"><strong>A</strong> &#8212; Advanced</span>
+        <span class="legend-item li-M"><strong>M</strong> &#8212; Mastery</span>
+        <span class="legend-item li-N"><strong>N</strong> &#8212; Not Applicable</span>
+      </div>
+      <div class="survey-progress">
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <span class="prog-label" id="prog-label">0 / 10 completed</span>
+      </div>
+      <div id="survey-dimensions"></div>
+      <div class="survey-footer">
+        <button class="btn-secondary" onclick="goToInfo()">&#8592; Back</button>
+        <button class="btn-primary" onclick="submitSurvey()">Submit &#8594;</button>
+      </div>
+    </div>
+  </div>
 
-    function dl(payload) {
-        const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `curriculum-map-${(payload.instructor.lastName||'response').toLowerCase()}.json`;
-        a.click();
-    }
+  <!-- DONE -->
+  <div id="page-done" class="wrap" style="display:none">
+    <div class="done-card">
+      <div class="done-hero">
+        <div class="done-icon">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2>Thank <em>you!</em></h2>
+        <p id="done-msg">Your curriculum map has been saved to the shared spreadsheet. The programme coordinator will compile all submissions.</p>
+      </div>
+      <div class="done-actions">
+        <button class="pdf-btn" onclick="window.print()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Download as PDF
+        </button>
+        <button class="restart-btn" onclick="restartForm()">Map Another Course</button>
+      </div>
+    </div>
+  </div>
 
-    function toast(msg, type='') {
-        const t = document.getElementById('toast');
-        t.textContent = msg;
-        t.className = `toast${type?' '+type:''} show`;
-        setTimeout(() => t.classList.remove('show'), 4000);
-    }
+</div><!-- #main-wrap -->
 
-    renderOutcomes();
-    initChart();
-    updateStats();
+<script>
+const WEBHOOK_URL = '';
+
+/* ── GDPR ── */
+function toggleGdprBtn(){
+  const cb=document.getElementById('gdpr-checkbox');
+  const btn=document.getElementById('gdpr-proceed-btn');
+  btn.classList.toggle('ready',cb.checked);
+}
+function acceptGdpr(){
+  if(!document.getElementById('gdpr-checkbox').checked)return;
+  document.getElementById('gdpr-page').style.display='none';
+  document.getElementById('main-hdr').style.display='block';
+  document.getElementById('main-wrap').style.display='block';
+  showPage('info');
+}
+
+/* ── PROGRAMME DATA ── */
+const PROGRAMMES={
+  'bachelor-biomedicine':{
+    name:'Bachelor in Biomedicine',termCount:6,
+    categories:[
+      {id:'A',title:'A. Knowledge',dims:[
+        {id:'1.1',title:'Foundational global & planetary health knowledge',
+         desc:'Biological mechanisms through which environmental determinants affect health outcomes.',
+         exContent:'Biological mechanisms through which air pollution contributes to respiratory disease.',
+         exILO:'Describe how an environmental determinant (e.g., PM2.5) affects a specific biological pathway involved in respiratory health.',
+         exTLA:'Analyse a short case study in small groups to identify how pollution exposure influences airway inflammation.',
+         exAssess:'Written assignment explaining one biological pathway linking an environmental determinant to a respiratory health outcome.'},
+        {id:'1.2',title:'Equity, inclusion & cultural perspectives in Biomedicine',
+         desc:'Differences in health outcomes related to housing, occupation, and exposure patterns across communities.',
+         exContent:'Differences in asthma prevalence related to housing, occupation, and exposure patterns across communities.',
+         exILO:'Analyse how social and cultural factors contribute to unequal exposure to environmental health risks.',
+         exTLA:'Compare epidemiological data from different populations to discuss how cultural and structural factors shape differential health risks.',
+         exAssess:'Short comparative analysis describing how two population groups experience different exposure-related health risks and why.'},
+        {id:'1.3',title:'Social, ethical & Human Rights foundations of Biomedical science',
+         desc:'Basic ethical principles applied to environmental health inequalities.',
+         exContent:'Basic ethical principles (autonomy, harm, fairness) applied to environmental health inequalities.',
+         exILO:'Evaluate a simple bioethical dilemma involving unequal environmental exposure and the right to health.',
+         exTLA:'Facilitated ethical discussion using a brief scenario illustrating unequal exposure to hazardous environments.',
+         exAssess:'Short reflective commentary evaluating the ethical considerations in a case of unequal environmental exposure.'}
+      ]},
+      {id:'B',title:'B. Skills',dims:[
+        {id:'2.1',title:'Systems thinking & problem solving skills',
+         desc:'Interplay between genes, environment, and behaviour in common diseases.',
+         exContent:'Interplay between genes, environment, and behaviour in a common disease (e.g., asthma, diabetes).',
+         exILO:'Construct a simple systems map showing interactions between biological, environmental, and social factors in a selected health condition.',
+         exTLA:'Group work to draw a basic systems map for a case involving multiple interacting determinants of disease.',
+         exAssess:'Submit a simple systems diagram with a short explanation of two interactions identified.'},
+        {id:'2.2',title:'Critical, ethical & reflective reasoning skills',
+         desc:'Identifying bias or missing data in a biomedical case involving environmental exposure.',
+         exContent:'Identifying bias or missing data in a biomedical case involving environmental exposure.',
+         exILO:'Identify assumptions, uncertainties, or potential biases when analysing a biomedical case with environmental components.',
+         exTLA:'Annotate a short case text to highlight bias, gaps in evidence, and assumptions.',
+         exAssess:'Annotated case submission with a brief explanation of two biases or uncertainties identified.'},
+        {id:'2.3',title:'Collaboration & teamwork across cultures and disciplines',
+         desc:'Working across backgrounds to jointly analyse determinants of a health condition.',
+         exContent:'Working across backgrounds to jointly analyse determinants of a health condition.',
+         exILO:'Contribute effectively to group work by sharing responsibilities and integrating diverse perspectives.',
+         exTLA:'Collaborate in mixed groups to jointly interpret a short biomedical case and present shared findings.',
+         exAssess:'Group presentation with a short peer-feedback form assessing teamwork and own contribution.'},
+        {id:'2.4',title:'Science communication',
+         desc:'Explaining environmental health mechanisms to a non-expert audience.',
+         exContent:'Explaining environmental health mechanisms to a non-expert audience.',
+         exILO:'Communicate a biomedical mechanism related to an environmental exposure in clear, accessible language.',
+         exTLA:'Prepare a brief infographic or short paragraph explaining an exposure-related biological mechanism to lay audiences.',
+         exAssess:'Submission of a short lay-summary explaining how one environmental factor affects a biological process.'}
+      ]},
+      {id:'C',title:'C. Values and Attitudes',dims:[
+        {id:'3.1',title:'Inclusion, equity & cultural humility',
+         desc:'How cultural perspectives shape health behaviours and exposure patterns.',
+         exContent:'How cultural perspectives shape health behaviours and exposure patterns.',
+         exILO:'Reflect on how own assumptions may shape health data interpretations about different communities.',
+         exTLA:'Present a short reflection after reviewing contrasting cultural contexts for exposure to environmental hazards.',
+         exAssess:'Short reflective paragraph identifying one personal assumption and how it might influence interpretation.'},
+        {id:'3.2',title:'Ethical integrity & social responsibility',
+         desc:'Ethical responsibility in presenting or interpreting population health data.',
+         exContent:'Ethical responsibility in presenting or interpreting population health data.',
+         exILO:'Justify why ethical and responsible interpretation of biomedical data is necessary for fair public communication.',
+         exTLA:'Examine two versions of a health-risk graph and discuss which is more ethically presented and why.',
+         exAssess:'Short written justification identifying responsible and irresponsible elements in a presented dataset.'},
+        {id:'3.3',title:'Sustainability awareness & growing future orientation',
+         desc:'Environmental footprint of laboratory practice in biomedicine.',
+         exContent:'Environmental footprint of laboratory practice in biomedicine.',
+         exILO:'Describe one way biomedical laboratory practice can reduce environmental impact.',
+         exTLA:'Paired discussion about sustainable lab practices and identify one concrete improvement.',
+         exAssess:'One-paragraph proposal describing a realistic sustainability improvement in a biomedical laboratory setting.'}
+      ]}
+    ]
+  },
+  'master-biomedicine':{
+    name:'Master in Biomedicine',termCount:4,
+    categories:[
+      {id:'A',title:'A. Knowledge',dims:[
+        {id:'1.1',title:'Global & planetary health knowledge',
+         desc:'Climate-related changes in vector ecology and molecular mechanisms of pathogen transmission.',
+         exContent:'Climate-related changes in vector ecology and molecular mechanisms of pathogen transmission.',
+         exILO:'Analyse how environmental changes influence molecular or cellular determinants of infectious disease.',
+         exTLA:'Interpret a climate-linked infectious disease case to identify molecular pathways affected by environmental change.',
+         exAssess:'Short written explanation of one biological mechanism through which a climate factor influences disease transmission or severity.'},
+        {id:'1.2',title:'Equity, inclusion, and cultural perspectives in Biomedicine',
+         desc:'Structural bias in biomedical research sampling.',
+         exContent:'Structural bias in biomedical research sampling (e.g., underrepresentation in clinical or genomic datasets).',
+         exILO:'Evaluate how sampling bias affects the interpretation of biomedical evidence.',
+         exTLA:'Compare datasets with different sampling compositions and discuss their implications for biomedical inference.',
+         exAssess:'Critical analysis describing two concrete consequences of sampling bias for interpreting biomedical findings.'},
+        {id:'1.3',title:'Social, ethical & Human Rights foundations of Biomedical science',
+         desc:'Use of human biological materials in research and related ethical frameworks.',
+         exContent:'Use of human biological materials in research and related ethical frameworks.',
+         exILO:'Evaluate an ethical dilemma involving data use, consent, or biological samples using a human-rights-based argument.',
+         exTLA:'Discuss a case of contested consent or data use and propose ethically justified courses of action.',
+         exAssess:'One-page ethical argument applying human-rights principles to a case involving biomedical data or tissue use.'}
+      ]},
+      {id:'B',title:'B. Skills',dims:[
+        {id:'2.1',title:'Systems thinking & problem solving skills',
+         desc:'Multilevel determinants of antimicrobial resistance (biological + environmental + societal).',
+         exContent:'Multilevel determinants of antimicrobial resistance (biological + environmental + societal).',
+         exILO:'Map multi-factor interactions contributing to a biomedical problem such as antimicrobial resistance.',
+         exTLA:'Construct a systems diagram connecting molecular mechanisms with environmental and behavioural drivers of AMR.',
+         exAssess:'Submission of a systems map plus a short justification explaining two critical interactions.'},
+        {id:'2.2',title:'Critical, ethical & reflective reasoning skills',
+         desc:'Ethical issues in biomedical innovation (e.g., personalised medicine, AI-driven diagnostics).',
+         exContent:'Ethical issues in biomedical innovation (e.g., personalised medicine, AI-driven diagnostics).',
+         exILO:'Critically reflect on how social and ethical considerations shape scientific decision-making.',
+         exTLA:'Annotate an innovation case to identify ethical tensions, assumptions, and power structures.',
+         exAssess:'Short reflective commentary linking scientific decisions to ethical or societal implications.'},
+        {id:'2.3',title:'Collaboration & teamwork across cultures and disciplines',
+         desc:'Interdisciplinary biomedical research group work.',
+         exContent:'Interdisciplinary biomedical research group work (e.g., merging molecular biology, public health, and data science).',
+         exILO:'Collaborate effectively in interdisciplinary groups by integrating different disciplinary insights.',
+         exTLA:'Work in culturally mixed groups to synthesise multiple disciplinary viewpoints in a research case.',
+         exAssess:'Group output (presentation) plus a brief peer-evaluation of collaborative contributions.'},
+        {id:'2.4',title:'Communication for sustainable and ethical science',
+         desc:'Communicating global biomedical challenges to policy or clinical audiences.',
+         exContent:'Communicating global biomedical challenges to policy or clinical audiences.',
+         exILO:'Produce a scientifically accurate and ethically responsible communication piece for a non-expert audience.',
+         exTLA:'Develop a policy-oriented brief summarising the societal impact of a biomedical challenge.',
+         exAssess:'One-page lay summary or policy brief explaining a biomedical issue in accessible language.'}
+      ]},
+      {id:'C',title:'C. Values and Attitudes',dims:[
+        {id:'3.1',title:'Inclusion, equity & cultural humility',
+         desc:'Cultural perspectives on health, illness, and biomedical research norms.',
+         exContent:'Cultural perspectives on health, illness, and biomedical research norms.',
+         exILO:'Demonstrate openness to other perspectives by reflecting on cultural influences in research contexts.',
+         exTLA:'Respond to a short vignette illustrating different cultural understandings of health data.',
+         exAssess:'Short reflective presentation identifying one cultural assumption and its impact on research interpretation.'},
+        {id:'3.2',title:'Ethical integrity & professional responsibility',
+         desc:'Responsible conduct of research and ethical integrity in biomedical studies.',
+         exContent:'Responsible conduct of research and ethical integrity in biomedical studies.',
+         exILO:'Evaluate scientific decisions in light of professional responsibility and societal impact.',
+         exTLA:'Critical comparison of two versions of a biomedical research summary for ethical clarity and transparency.',
+         exAssess:'Brief written evaluation describing what constitutes responsible practice in a biomedical scenario.'},
+        {id:'3.3',title:'Sustainability mindset & future-oriented thinking',
+         desc:'Environmental footprint of biomedical research (e.g., plastic waste, reagent sustainability).',
+         exContent:'Environmental footprint of biomedical research (e.g., plastic waste, reagent sustainability).',
+         exILO:'Propose feasible sustainability improvements in a biomedical laboratory context.',
+         exTLA:'Conduct a "green lab scan" identifying hotspots in lab routines.',
+         exAssess:'Short proposal outlining one implementable sustainability improvement for a biomedical lab.'}
+      ]}
+    ]
+  },
+  'master-bds':{
+    name:'Master in Biomedical Data Science',termCount:4,
+    categories:[
+      {id:'A',title:'A. Knowledge',dims:[
+        {id:'1.1',title:'Global, planetary & population health data knowledge',
+         desc:'Climate-linked health datasets and their limitations.',
+         exContent:'Climate-linked health datasets and their limitations.',
+         exILO:'Interpret global health datasets and identify key uncertainties or biases.',
+         exTLA:'Analyse a global health dataset and discuss gaps and limitations.',
+         exAssess:'Short data-brief highlighting one bias and its effect on interpretation.'},
+        {id:'1.2',title:'Equity, inclusion & cultural perspectives in Data Science',
+         desc:'Algorithmic bias in health-related machine learning.',
+         exContent:'Algorithmic bias in health-related machine learning.',
+         exILO:'Evaluate sources of bias in datasets used for biomedical modelling.',
+         exTLA:'Compare model outputs produced from biased vs. balanced datasets.',
+         exAssess:'Critical reflection of how dataset composition shaped the model output.'},
+        {id:'1.3',title:'Ethical, legal & Human Rights foundations of Data Science',
+         desc:'Privacy, consent and fairness in AI/ML for health.',
+         exContent:'Privacy, consent and fairness in AI/ML for health.',
+         exILO:'Evaluate ethical issues in data-driven biomedical decision-making.',
+         exTLA:'Examine an AI health-screening case to identify ethical tensions.',
+         exAssess:'One-page ethical evaluation of a machine-learning health application.'}
+      ]},
+      {id:'B',title:'B. Skills',dims:[
+        {id:'2.1',title:'Systems thinking & complexity skills for data rich biomedical problems',
+         desc:'Multi-layer data integration for health modelling.',
+         exContent:'Multi-layer data integration for health modelling.',
+         exILO:'Integrate biological, environmental, and social data layers into a simple conceptual model.',
+         exTLA:'Create a conceptual model linking multiple data types to a health outcome.',
+         exAssess:'Short diagram and explanation of two interactions between data layers.'},
+        {id:'2.2',title:'Critical, ethical & reflective data reasoning skills',
+         desc:'Interpreting uncertainty and bias in statistical models.',
+         exContent:'Interpreting uncertainty and bias in statistical models.',
+         exILO:'Critically evaluate model outputs for uncertainty and fairness.',
+         exTLA:'Annotate model-output tables to identify uncertainty and limitations.',
+         exAssess:'Short critical report of model uncertainty in a given dataset.'},
+        {id:'2.3',title:'Interdisciplinary & cross sector collaboration skills',
+         desc:'Working with clinicians, statisticians and ML engineers.',
+         exContent:'Working with clinicians, statisticians and ML engineers.',
+         exILO:'Communicate discipline-specific concepts effectively in interdisciplinary teams.',
+         exTLA:'Collaborate in mixed teams to interpret a dataset and co-produce insights.',
+         exAssess:'Group presentation with peer-feedback on interdisciplinary communication.'},
+        {id:'2.4',title:'Communication for ethical, inclusive & globally relevant data science',
+         desc:'Explaining uncertainty, limitations, and societal impacts of ML models.',
+         exContent:'Explaining uncertainty, limitations, and societal impacts of ML models.',
+         exILO:'Communicate model outputs clearly for non-technical audiences.',
+         exTLA:'Create a simple visualisation explaining model confidence.',
+         exAssess:'Design an infographic communicating uncertainty and limitations.'}
+      ]},
+      {id:'C',title:'C. Values and Attitudes',dims:[
+        {id:'3.1',title:'Equity, inclusion & cultural humility in Data Science',
+         desc:'How structural inequalities show up in datasets.',
+         exContent:'How structural inequalities show up in datasets.',
+         exILO:'Reflect on how data structures reflect social inequities.',
+         exTLA:'Write a short reflection on how dataset design shapes representation.',
+         exAssess:'Write a short paragraph identifying one inequity embedded in a dataset.'},
+        {id:'3.2',title:'Ethical Integrity & professional responsibility',
+         desc:'Responsible AI/ML in health.',
+         exContent:'Responsible AI/ML in health.',
+         exILO:'Justify responsible modelling choices using ethical reasoning.',
+         exTLA:'Review a model pipeline and identify stages where ethical decisions matter.',
+         exAssess:'Draft a short justification of one responsible modelling choice.'},
+        {id:'3.3',title:'Sustainability mindset & future-oriented statistical thinking',
+         desc:'Energy use and environmental footprint of computational workflows.',
+         exContent:'Energy use and environmental footprint of computational workflows.',
+         exILO:'Describe the environmental impact of computational work.',
+         exTLA:'Estimate the computational footprint of a workflow.',
+         exAssess:'Short recommendation to reduce computation-related environmental impact.'}
+      ]}
+    ]
+  },
+  'master-mtls':{
+    name:'Master in Molecular Techniques and Life Science',termCount:4,
+    categories:[
+      {id:'A',title:'A. Knowledge',dims:[
+        {id:'1.1',title:'Global & planetary health knowledge in Molecular Life Science',
+         desc:'Environmental genomics and climate-related drivers of molecular change.',
+         exContent:'Environmental genomics and climate-related drivers of molecular change.',
+         exILO:'Analyse how environmental changes influence molecular or omics-level patterns.',
+         exTLA:'Interpret an exposomics dataset linked to climate variables.',
+         exAssess:'Short interpretation of one environmental factor affecting molecular signatures.'},
+        {id:'1.2',title:'Equity, inclusion & cultural perspectives in Molecular Techniques',
+         desc:'Bias in genomic reference databases.',
+         exContent:'Bias in genomic reference databases.',
+         exILO:'Explain how biased reference genomes impact molecular interpretation.',
+         exTLA:'Compare variant calls produced using different reference genomes.',
+         exAssess:'Short analysis describing how genome bias influenced interpretation.'},
+        {id:'1.3',title:'Ethical, legal & Human Rights foundations of Molecular Life Science',
+         desc:'Ethical issues in CRISPR and genomic data governance.',
+         exContent:'Ethical issues in CRISPR and genomic data governance.',
+         exILO:'Evaluate ethical concerns arising from gene editing or genomic privacy.',
+         exTLA:'Discuss a CRISPR case involving ethical dilemmas.',
+         exAssess:'One-page ethical argument addressing risks and responsibilities.'}
+      ]},
+      {id:'B',title:'B. Skills',dims:[
+        {id:'2.1',title:'Systems thinking & complexity skills in Molecular Systems',
+         desc:'Omics data integration across molecular and environmental layers.',
+         exContent:'Omics data integration across molecular and environmental layers.',
+         exILO:'Construct a simple systems representation of how environmental exposures alter molecular pathways.',
+         exTLA:'Create an exposure-to-molecular-effect pathway diagram.',
+         exAssess:'Short written submission explaining two key interactions in the pathway.'},
+        {id:'2.2',title:'Critical, ethical & reflective skills in experimental & computational practice',
+         desc:'Assessing bias or quality issues in omics datasets.',
+         exContent:'Assessing bias or quality issues in omics datasets.',
+         exILO:'Critically evaluate molecular datasets for quality, bias or ethical concerns.',
+         exTLA:'Inspect an omics dataset to identify batch effects or limitations.',
+         exAssess:'Short critical report identifying two data-quality or ethical issues.'},
+        {id:'2.3',title:'Collaboration & teamwork across cultures, disciplines & sectors',
+         desc:'Tri-university collaboration in lab-based or computational projects.',
+         exContent:'Tri-university collaboration in lab-based or computational projects.',
+         exILO:'Operate effectively in multicultural, cross-site molecular research teams.',
+         exTLA:'Collaborate remotely across institutions to analyse a shared dataset.',
+         exAssess:'Group submission plus peer-feedback on group work.'},
+        {id:'2.4',title:'Communication for responsible & ethical Molecular Science',
+         desc:'Translating complex omics findings for clinical or lay audiences.',
+         exContent:'Translating complex omics findings for clinical or lay audiences.',
+         exILO:'Communicate molecular findings and their ethical implications clearly for non-specialists.',
+         exTLA:'Prepare a short explanation of a molecular result for a lay audience.',
+         exAssess:'Lay-summary describing a molecular finding and its implications.'}
+      ]},
+      {id:'C',title:'C. Values and Attitudes',dims:[
+        {id:'3.1',title:'Equity, inclusion & cultural humility in molecular research',
+         desc:'Respectful engagement with global genomic contributions.',
+         exContent:'Respectful engagement with global genomic contributions.',
+         exILO:'Reflect on equity issues in molecular sampling and interpretation.',
+         exTLA:'Read a short vignette about genomic sampling inequities and write a reflection.',
+         exAssess:'Draft a short paragraph identifying one equity issue in molecular research.'},
+        {id:'3.2',title:'Ethical integrity & professional responsibility in high tech molecular work',
+         desc:'Dual-use risks and responsible use of molecular technologies.',
+         exContent:'Dual-use risks and responsible use of molecular technologies.',
+         exILO:'Justify responsible molecular practices in potentially dual-use research contexts.',
+         exTLA:'Examine a case where a molecular technique may have dual-use implications.',
+         exAssess:'Draft a one-page ethical justification evaluating risk and responsibility.'},
+        {id:'3.3',title:'Sustainability mindset in Molecular Techniques & Life Science innovation',
+         desc:'Environmental costs of high-throughput molecular technologies.',
+         exContent:'Environmental costs of high-throughput molecular technologies.',
+         exILO:'Recommend sustainability-improving measures for molecular laboratories.',
+         exTLA:'Perform a "green lab" audit of a molecular workflow.',
+         exAssess:'Short presentation outlining one evidence-based sustainability improvement.'}
+      ]}
+    ]
+  }
+};
+
+/* ── PAGE NAVIGATION ── */
+function showPage(name){
+  ['info','survey','done'].forEach(p=>{
+    document.getElementById('page-'+p).style.display=(p===name)?'':'none';
+  });
+  const steps={info:1,survey:2,done:3};
+  const active=steps[name];
+  [1,2,3].forEach(n=>{
+    const el=document.getElementById('step-'+n);
+    el.className='step'+(n===active?' active':n<active?' done':'');
+  });
+  window.scrollTo(0,0);
+}
+
+function updateTermOptions(){
+  const prog=document.getElementById('programme').value;
+  const termSel=document.getElementById('term');
+  termSel.innerHTML='';
+  if(!prog){
+    termSel.innerHTML='<option value="">Select programme first\u2026</option>';
+    return;
+  }
+  const count=PROGRAMMES[prog]?PROGRAMMES[prog].termCount:6;
+  const opt0=document.createElement('option');
+  opt0.value='';opt0.textContent='Select term\u2026';
+  termSel.appendChild(opt0);
+  for(let i=1;i<=count;i++){
+    const opt=document.createElement('option');
+    opt.value=String(i);opt.textContent='Term '+i;
+    termSel.appendChild(opt);
+  }
+}
+
+function goToInfo(){showPage('info');}
+
+function goToSurvey(){
+  const name=document.getElementById('course-name').value.trim();
+  const code=document.getElementById('course-code').value.trim();
+  const prog=document.getElementById('programme').value;
+  const term=document.getElementById('term').value;
+  const credits=document.getElementById('credits').value.trim();
+  let valid=true;
+  [['course-name',name],['course-code',code],['programme',prog],['term',term],['credits',credits]].forEach(([id,val])=>{
+    const el=document.getElementById(id);
+    if(!val){el.classList.add('error');valid=false;}
+    else el.classList.remove('error');
+  });
+  if(!valid)return;
+  buildSurvey(prog);
+  document.getElementById('survey-meta').innerHTML=
+    '<span class="survey-meta-item"><strong>Course:</strong> '+esc(name)+' ('+esc(code)+')</span>'+
+    '<span class="survey-meta-item"><strong>Programme:</strong> '+esc(PROGRAMMES[prog].name)+'</span>'+
+    '<span class="survey-meta-item"><strong>Term:</strong> '+esc(term)+'</span>'+
+    '<span class="survey-meta-item"><strong>Credits:</strong> '+esc(credits)+' hp</span>';
+  showPage('survey');
+}
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── BUILD SURVEY ── */
+function buildSurvey(progKey){
+  const prog=PROGRAMMES[progKey];
+  const container=document.getElementById('survey-dimensions');
+  container.innerHTML='';
+  prog.categories.forEach(cat=>{
+    const catDiv=document.createElement('div');
+    catDiv.className='cat-section';
+    catDiv.innerHTML='<div class="cat-header"><h3>'+esc(cat.title)+'</h3></div>';
+    cat.dims.forEach(dim=>{
+      const safeId=dim.id.replace('.','_');
+      const block=document.createElement('div');
+      block.className='dim-block';
+      block.id='dim-'+safeId;
+      block.innerHTML=
+        '<div class="dim-header">'+
+          '<div class="dim-id">Dimension '+esc(dim.id)+'</div>'+
+          '<div class="dim-title">'+esc(dim.title)+'</div>'+
+          '<div class="dim-desc">'+esc(dim.desc)+'</div>'+
+        '</div>'+
+        '<div class="level-btns">'+
+          '<button class="level-btn" data-dim="'+dim.id+'" data-level="I" onclick="selectLevel(this)">I &#8212; Introductory</button>'+
+          '<button class="level-btn" data-dim="'+dim.id+'" data-level="A" onclick="selectLevel(this)">A &#8212; Advanced</button>'+
+          '<button class="level-btn" data-dim="'+dim.id+'" data-level="M" onclick="selectLevel(this)">M &#8212; Mastery</button>'+
+          '<button class="level-btn" data-dim="'+dim.id+'" data-level="N" onclick="selectLevel(this)">N &#8212; Not Applicable</button>'+
+        '</div>'+
+        '<div class="dim-fields" id="fields-'+safeId+'" style="display:none"></div>';
+      catDiv.appendChild(block);
+    });
+    container.appendChild(catDiv);
+  });
+  updateProgress();
+}
+
+function selectLevel(btn){
+  const dimId=btn.dataset.dim;
+  const level=btn.dataset.level;
+  const safeId=dimId.replace('.','_');
+  const block=document.getElementById('dim-'+safeId);
+  const fields=document.getElementById('fields-'+safeId);
+  block.querySelectorAll('.level-btn').forEach(b=>b.className='level-btn');
+  btn.className='level-btn sel-'+level;
+  block.dataset.level=level;
+  block.classList.add('answered');
+  block.style.outline='';
+  const prog=PROGRAMMES[document.getElementById('programme').value];
+  let dimData=null;
+  for(const cat of prog.categories){
+    for(const d of cat.dims){if(d.id===dimId){dimData=d;break;}}
+    if(dimData)break;
+  }
+  const ph=dimData||{};
+  if(level==='N'){
+    fields.style.display='';
+    fields.innerHTML=
+      '<div class="na-note">Please explain why this dimension is not applicable to your course:</div>'+
+      '<div class="field-group" style="padding-top:4px;">'+
+        '<textarea class="reason-ta" id="reason-'+safeId+'" placeholder="Briefly explain why this dimension does not apply\u2026" oninput="updateProgress()"></textarea>'+
+      '</div>';
+  }else{
+    fields.style.display='';
+    fields.innerHTML=
+      '<div class="field-group">'+
+        '<div class="field-label">Content</div>'+
+        '<div class="field-hint">What content in your course addresses this dimension? Example: '+esc(ph.exContent||'')+'</div>'+
+        '<textarea class="field-ta" id="content-'+safeId+'" placeholder="Describe the course content that addresses this dimension\u2026" oninput="updateProgress()"></textarea>'+
+      '</div>'+
+      '<div class="field-group">'+
+        '<div class="field-label">Intended Learning Outcome (ILO)</div>'+
+        '<div class="field-hint">What ILO addresses this dimension? Example: '+esc(ph.exILO||'')+'</div>'+
+        '<textarea class="field-ta" id="ilo-'+safeId+'" placeholder="State the ILO that addresses this dimension\u2026" oninput="updateProgress()"></textarea>'+
+      '</div>'+
+      '<div class="field-group">'+
+        '<div class="field-label">Teaching &amp; Learning Activity (TLA)</div>'+
+        '<div class="field-hint">What TLA supports this dimension? Example: '+esc(ph.exTLA||'')+'</div>'+
+        '<textarea class="field-ta" id="tla-'+safeId+'" placeholder="Describe the teaching and learning activity\u2026" oninput="updateProgress()"></textarea>'+
+      '</div>'+
+      '<div class="field-group">'+
+        '<div class="field-label">Assessment &amp; Feedback</div>'+
+        '<div class="field-hint">How is this dimension assessed? Example: '+esc(ph.exAssess||'')+'</div>'+
+        '<textarea class="field-ta" id="assess-'+safeId+'" placeholder="Describe the assessment and feedback method\u2026" oninput="updateProgress()"></textarea>'+
+      '</div>';
+  }
+  updateProgress();
+}
+
+function updateProgress(){
+  const progKey=document.getElementById('programme').value;
+  const prog=PROGRAMMES[progKey];
+  if(!prog)return;
+  let total=0,done=0;
+  prog.categories.forEach(cat=>{
+    cat.dims.forEach(dim=>{
+      total++;
+      const safeId=dim.id.replace('.','_');
+      const block=document.getElementById('dim-'+safeId);
+      if(!block)return;
+      const level=block.dataset.level;
+      if(!level)return;
+      if(level==='N'){
+        const ta=document.getElementById('reason-'+safeId);
+        if(ta&&ta.value.trim())done++;
+      }else{
+        const c=document.getElementById('content-'+safeId);
+        const i=document.getElementById('ilo-'+safeId);
+        const t=document.getElementById('tla-'+safeId);
+        const a=document.getElementById('assess-'+safeId);
+        if(c&&i&&t&&a&&c.value.trim()&&i.value.trim()&&t.value.trim()&&a.value.trim())done++;
+      }
+    });
+  });
+  const pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=done+' / '+total+' completed';
+}
+
+/* ── SUBMIT ── */
+function submitSurvey(){
+  const progKey=document.getElementById('programme').value;
+  const prog=PROGRAMMES[progKey];
+  if(!prog)return;
+  let valid=true;
+  prog.categories.forEach(cat=>{
+    cat.dims.forEach(dim=>{
+      const safeId=dim.id.replace('.','_');
+      const block=document.getElementById('dim-'+safeId);
+      const level=block?block.dataset.level:null;
+      if(!level){
+        if(block)block.style.outline='2px solid #c0392b';
+        valid=false;return;
+      }
+      if(block)block.style.outline='';
+      if(level==='N'){
+        const ta=document.getElementById('reason-'+safeId);
+        if(!ta||!ta.value.trim()){if(ta)ta.classList.add('error');valid=false;}
+        else if(ta)ta.classList.remove('error');
+      }else{
+        ['content','ilo','tla','assess'].forEach(f=>{
+          const el=document.getElementById(f+'-'+safeId);
+          if(!el||!el.value.trim()){if(el)el.classList.add('error');valid=false;}
+          else if(el)el.classList.remove('error');
+        });
+      }
+    });
+  });
+  if(!valid){
+    const firstErr=document.querySelector('.dim-block[style*="outline"],.field-ta.error,.reason-ta.error');
+    if(firstErr)firstErr.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  const courseName=document.getElementById('course-name').value.trim();
+  const courseCode=document.getElementById('course-code').value.trim();
+  const term=document.getElementById('term').value;
+  const credits=document.getElementById('credits').value.trim();
+  const responses={};
+  prog.categories.forEach(cat=>{
+    cat.dims.forEach(dim=>{
+      const safeId=dim.id.replace('.','_');
+      const block=document.getElementById('dim-'+safeId);
+      const level=block.dataset.level;
+      responses[dim.id]={title:dim.title,level};
+      if(level==='N'){
+        responses[dim.id].reason=document.getElementById('reason-'+safeId).value.trim();
+      }else{
+        responses[dim.id].content=document.getElementById('content-'+safeId).value.trim();
+        responses[dim.id].ilo=document.getElementById('ilo-'+safeId).value.trim();
+        responses[dim.id].tla=document.getElementById('tla-'+safeId).value.trim();
+        responses[dim.id].assess=document.getElementById('assess-'+safeId).value.trim();
+      }
+    });
+  });
+  const payload={courseName,courseCode,programme:prog.name,term,credits,responses,submittedAt:new Date().toISOString()};
+  document.getElementById('done-msg').textContent=
+    'Your curriculum map for '+courseName+' has been saved to the shared spreadsheet. The programme coordinator will compile all submissions.';
+  if(WEBHOOK_URL){
+    fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+      .catch(err=>console.error('Webhook error:',err));
+  }
+  showPage('done');
+}
+
+/* ── RESTART ── */
+function restartForm(){
+  ['course-name','course-code','credits'].forEach(id=>{
+    document.getElementById(id).value='';
+    document.getElementById(id).classList.remove('error');
+  });
+  document.getElementById('programme').value='';
+  document.getElementById('programme').classList.remove('error');
+  document.getElementById('term').innerHTML='<option value="">Select programme first\u2026</option>';
+  document.getElementById('term').classList.remove('error');
+  document.getElementById('survey-dimensions').innerHTML='';
+  showPage('info');
+}
 </script>
 </body>
 </html>
