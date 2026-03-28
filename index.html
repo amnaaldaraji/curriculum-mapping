@@ -334,7 +334,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-const WEBHOOK_URL = 'https://default74ac922853f24cedb479b365b689ec.e2.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0463999d7d304cc09832213b48eff758/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=wruUmnV2rilD2KSlW-zYuGlTRq0ik6y6ZUNnXqekhP4';
+let lastSubmission = null;
+const WEBHOOK_URL ='https://default74ac922853f24cedb479b365b689ec.e2.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0463999d7d304cc09832213b48eff758/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=wruUmnV2rilD2KSlW-zYuGlTRq0ik6y6ZUNnXqekhP4';
 
 /* ── GDPR ── */
 function toggleGdprBtn(){
@@ -871,6 +872,7 @@ function submitSurvey(){
     });
   });
   const payload={courseName,courseCode,programme:prog.name,term,credits,responses,submittedAt:new Date().toISOString()};
+  lastSubmission=payload;
   document.getElementById('done-msg').textContent=
     'Your curriculum map for '+courseName+' has been saved to the shared spreadsheet. The programme coordinator will compile all submissions.';
   if(WEBHOOK_URL){
@@ -895,49 +897,56 @@ function restartForm(){
 }
 
 /* ── PDF EXPORT ── */
-async function generatePDF(){
-  const courseName=document.getElementById('course-name').value.trim()||'Curriculum Map';
-  const now=new Date();
-  const dateStr=now.toLocaleDateString('en-SE');
-  let html=`<div style="font-family:Arial,sans-serif;max-width:800px;margin:20px;"><h1>${courseName}</h1><p><strong>Date:</strong> ${dateStr}</p><p><strong>Course Code:</strong> ${document.getElementById('course-code').value.trim()}</p><p><strong>Programme:</strong> ${document.getElementById('programme').options[document.getElementById('programme').selectedIndex].text}</p><p><strong>Term:</strong> ${document.getElementById('term').value}</p><p><strong>Credits:</strong> ${document.getElementById('credits').value.trim()}</p><hr style="margin:20px 0;"><h2>Dimension Mappings</h2>`;
-  const progKey=document.getElementById('programme').value;
-  const prog=PROGRAMMES[progKey];
-  prog.categories.forEach(cat=>{
-    html+=`<h3>${cat.title}</h3>`;
-    cat.dims.forEach(dim=>{
-      const safeId=dim.id.replace('.','_');
-      const block=document.getElementById('dim-'+safeId);
-      const level=block.dataset.level;
-      html+=`<div style="margin:15px 0;padding:12px;background:#f5f5f5;border-left:4px solid #006D77;"><p><strong>Dimension ${dim.id}: ${dim.title}</strong></p><p><strong>Level:</strong> ${level}</p>`;
-      if(level==='N'){
-        const reason=document.getElementById('reason-'+safeId).value.trim();
-        html+=`<p><strong>Reason:</strong> ${reason}</p>`;
+function generatePDF(){
+  if(!lastSubmission){alert('No submission data found.');return;}
+  try{
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF();
+    const margin=15;
+    const pageW=doc.internal.pageSize.getWidth();
+    const pageH=doc.internal.pageSize.getHeight();
+    const maxW=pageW-margin*2;
+    let y=margin;
+    const nl=(extra=2)=>{y+=extra;};
+    const checkPage=()=>{if(y>pageH-margin){doc.addPage();y=margin;}};
+    const write=(text,size=11,bold=false)=>{
+      doc.setFontSize(size);
+      doc.setFont('helvetica',bold?'bold':'normal');
+      const lines=doc.splitTextToSize(String(text||''),maxW);
+      lines.forEach(line=>{checkPage();doc.text(line,margin,y);y+=size*0.45;});
+      nl();
+    };
+    write(lastSubmission.courseName,18,true);
+    write(lastSubmission.programme+' | Term '+lastSubmission.term+' | '+lastSubmission.credits+' credits',10);
+    write('Course Code: '+lastSubmission.courseCode,10);
+    write('Submitted: '+new Date(lastSubmission.submittedAt).toLocaleDateString('en-SE'),10);
+    nl(5);
+    doc.setDrawColor(0,109,119);
+    doc.line(margin,y,pageW-margin,y);
+    nl(6);
+    write('Dimension Mappings',14,true);
+    nl(2);
+    Object.entries(lastSubmission.responses).forEach(([dimId,data])=>{
+      nl(3);
+      checkPage();
+      doc.setFillColor(237,246,249);
+      doc.roundedRect(margin,y-4,maxW,6,1,1,'F');
+      write('Dimension '+dimId+': '+data.title,11,true);
+      write('Level: '+data.level,10);
+      if(data.level==='N'){
+        write('Reason: '+(data.reason||''),10);
       }else{
-        const content=document.getElementById('content-'+safeId).value.trim();
-        const ilo=document.getElementById('ilo-'+safeId).value.trim();
-        const tla=document.getElementById('tla-'+safeId).value.trim();
-        const assess=document.getElementById('assess-'+safeId).value.trim();
-        html+=`<p><strong>Content:</strong> ${content}</p><p><strong>ILO:</strong> ${ilo}</p><p><strong>TLA:</strong> ${tla}</p><p><strong>Assessment:</strong> ${assess}</p>`;
+        if(data.content)write('Content: '+data.content,10);
+        if(data.ilo)write('ILO: '+data.ilo,10);
+        if(data.tla)write('TLA: '+data.tla,10);
+        if(data.assess)write('Assessment: '+data.assess,10);
       }
-      html+=`</div>`;
     });
-  });
-  html+=`</div>`;
-  const {jsPDF}=window.jspdf;
-  const doc=new jsPDF();
-  const pageHeight=doc.internal.pageSize.getHeight();
-  const pageWidth=doc.internal.pageSize.getWidth();
-  const margin=10;
-  const lineHeight=5;
-  let yPos=margin;
-  const text=html.replace(/<[^>]*>/g,'');
-  const lines=doc.splitTextToSize(text,pageWidth-2*margin);
-  lines.forEach(line=>{
-    if(yPos+lineHeight>pageHeight-margin){doc.addPage();yPos=margin;}
-    doc.text(line,margin,yPos);
-    yPos+=lineHeight;
-  });
-  doc.save(courseName.replace(/[^a-z0-9]/gi,'_')+'.pdf');
+    doc.save(lastSubmission.courseName.replace(/[^a-z0-9]/gi,'_')+'_curriculum_map.pdf');
+  }catch(e){
+    alert('PDF error: '+e.message);
+    console.error(e);
+  }
 }
 </script>
 </body>
