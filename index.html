@@ -899,7 +899,7 @@ async function generatePDF(){
   const courseName=document.getElementById('course-name').value.trim()||'Curriculum Map';
   const now=new Date();
   const dateStr=now.toLocaleDateString('en-SE');
-  const html=`<div style="font-family:Arial,sans-serif;max-width:800px;margin:20px;"><h1>${courseName}</h1><p><strong>Date:</strong> ${dateStr}</p><p><strong>Course Code:</strong> ${document.getElementById('course-code').value.trim()}</p><p><strong>Programme:</strong> ${document.getElementById('programme').options[document.getElementById('programme').selectedIndex].text}</p><p><strong>Term:</strong> ${document.getElementById('term').value}</p><p><strong>Credits:</strong> ${document.getElementById('credits').value.trim()}</p><hr style="margin:20px 0;"><h2>Dimension Mappings</h2>`;
+  let html=`<div style="font-family:Arial,sans-serif;max-width:800px;margin:20px;"><h1>${courseName}</h1><p><strong>Date:</strong> ${dateStr}</p><p><strong>Course Code:</strong> ${document.getElementById('course-code').value.trim()}</p><p><strong>Programme:</strong> ${document.getElementById('programme').options[document.getElementById('programme').selectedIndex].text}</p><p><strong>Term:</strong> ${document.getElementById('term').value}</p><p><strong>Credits:</strong> ${document.getElementById('credits').value.trim()}</p><hr style="margin:20px 0;"><h2>Dimension Mappings</h2>`;
   const progKey=document.getElementById('programme').value;
   const prog=PROGRAMMES[progKey];
   prog.categories.forEach(cat=>{
