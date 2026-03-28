@@ -321,7 +321,7 @@
         <p id="done-msg">Your curriculum map has been saved to the shared spreadsheet. The programme coordinator will compile all submissions.</p>
       </div>
       <div class="done-actions">
-        <button class="pdf-btn" onclick="window.print()">
+        <button class="pdf-btn" onclick="generatePDF()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Download as PDF
         </button>
@@ -332,6 +332,7 @@
 
 </div><!-- #main-wrap -->
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const WEBHOOK_URL = 'https://default74ac922853f24cedb479b365b689ec.e2.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0463999d7d304cc09832213b48eff758/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=wruUmnV2rilD2KSlW-zYuGlTRq0ik6y6ZUNnXqekhP4';
 
@@ -891,6 +892,52 @@ function restartForm(){
   document.getElementById('term').classList.remove('error');
   document.getElementById('survey-dimensions').innerHTML='';
   showPage('info');
+}
+
+/* ── PDF EXPORT ── */
+async function generatePDF(){
+  const courseName=document.getElementById('course-name').value.trim()||'Curriculum Map';
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('en-SE');
+  const html=`<div style="font-family:Arial,sans-serif;max-width:800px;margin:20px;"><h1>${courseName}</h1><p><strong>Date:</strong> ${dateStr}</p><p><strong>Course Code:</strong> ${document.getElementById('course-code').value.trim()}</p><p><strong>Programme:</strong> ${document.getElementById('programme').options[document.getElementById('programme').selectedIndex].text}</p><p><strong>Term:</strong> ${document.getElementById('term').value}</p><p><strong>Credits:</strong> ${document.getElementById('credits').value.trim()}</p><hr style="margin:20px 0;"><h2>Dimension Mappings</h2>`;
+  const progKey=document.getElementById('programme').value;
+  const prog=PROGRAMMES[progKey];
+  prog.categories.forEach(cat=>{
+    html+=`<h3>${cat.title}</h3>`;
+    cat.dims.forEach(dim=>{
+      const safeId=dim.id.replace('.','_');
+      const block=document.getElementById('dim-'+safeId);
+      const level=block.dataset.level;
+      html+=`<div style="margin:15px 0;padding:12px;background:#f5f5f5;border-left:4px solid #006D77;"><p><strong>Dimension ${dim.id}: ${dim.title}</strong></p><p><strong>Level:</strong> ${level}</p>`;
+      if(level==='N'){
+        const reason=document.getElementById('reason-'+safeId).value.trim();
+        html+=`<p><strong>Reason:</strong> ${reason}</p>`;
+      }else{
+        const content=document.getElementById('content-'+safeId).value.trim();
+        const ilo=document.getElementById('ilo-'+safeId).value.trim();
+        const tla=document.getElementById('tla-'+safeId).value.trim();
+        const assess=document.getElementById('assess-'+safeId).value.trim();
+        html+=`<p><strong>Content:</strong> ${content}</p><p><strong>ILO:</strong> ${ilo}</p><p><strong>TLA:</strong> ${tla}</p><p><strong>Assessment:</strong> ${assess}</p>`;
+      }
+      html+=`</div>`;
+    });
+  });
+  html+=`</div>`;
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  const pageHeight=doc.internal.pageSize.getHeight();
+  const pageWidth=doc.internal.pageSize.getWidth();
+  const margin=10;
+  const lineHeight=5;
+  let yPos=margin;
+  const text=html.replace(/<[^>]*>/g,'');
+  const lines=doc.splitTextToSize(text,pageWidth-2*margin);
+  lines.forEach(line=>{
+    if(yPos+lineHeight>pageHeight-margin){doc.addPage();yPos=margin;}
+    doc.text(line,margin,yPos);
+    yPos+=lineHeight;
+  });
+  doc.save(courseName.replace(/[^a-z0-9]/gi,'_')+'.pdf');
 }
 </script>
 </body>
