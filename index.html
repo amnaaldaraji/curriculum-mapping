@@ -406,6 +406,7 @@
         <h2>Thank <em>you!</em></h2>
         <p id="done-msg">Your curriculum map has been saved to the shared spreadsheet. The programme coordinator will compile all submissions.</p>
       </div>
+      <div id="submitted-courses-list" style="margin:0 0 16px;text-align:left"></div>
       <div class="done-actions">
         <button class="pdf-btn" onclick="generatePDF()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -421,6 +422,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 let lastSubmission = null;
+let submittedCourses = [];
 const WEBHOOK_URL ='https://default74ac922853f24cedb479b365b689ec.e2.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/0463999d7d304cc09832213b48eff758/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=wruUmnV2rilD2KSlW-zYuGlTRq0ik6y6ZUNnXqekhP4';
 
 /* ── GDPR ── */
@@ -963,13 +965,24 @@ function submitSurvey(){
   });
   const payload={courseName,courseCode,programme:prog.name,term,credits,responses,submittedAt:new Date().toISOString()};
   lastSubmission=payload;
+  submittedCourses.push({name:courseName,code:courseCode});
   document.getElementById('done-msg').textContent=
     'Your curriculum map for '+courseName+' has been saved to the shared spreadsheet. The programme coordinator will compile all submissions.';
+  renderSubmittedCourses();
   if(WEBHOOK_URL){
     fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
       .catch(err=>console.error('Webhook error:',err));
   }
   showPage('done');
+}
+
+function renderSubmittedCourses(){
+  const list=document.getElementById('submitted-courses-list');
+  if(!list||submittedCourses.length===0){if(list)list.innerHTML='';return;}
+  list.innerHTML='<p style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:8px">Submitted this session:</p>'+
+    submittedCourses.map(c=>'<div style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--gray-700);padding:5px 0;border-bottom:1px solid var(--border)">'+
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'+
+      '<span><strong>'+c.name+'</strong> ('+c.code+')</span></div>').join('');
 }
 
 /* ── RESTART ── */
@@ -983,6 +996,7 @@ function restartForm(){
   document.getElementById('term').innerHTML='<option value="">Select programme first\u2026</option>';
   document.getElementById('term').classList.remove('error');
   document.getElementById('survey-dimensions').innerHTML='';
+  renderSubmittedCourses();
   showPage('info');
 }
 
