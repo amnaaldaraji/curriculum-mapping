@@ -90,11 +90,14 @@
         .survey-meta-item strong{color:var(--navy)}
         .level-legend{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
         .level-legend-label{font-size:.67rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gray-400);margin-right:4px}
-        .legend-item{display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;border:1.5px solid var(--border);font-size:.72rem;font-weight:600;color:var(--gray-700)}
+        .legend-item{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:20px;border:1.5px solid var(--border);font-size:.72rem;font-weight:600;color:var(--gray-700)}
         .legend-item.li-I{background:#EDF6F9;border-color:var(--teal-light);color:var(--teal)}
         .legend-item.li-A{background:#FFF3E0;border-color:#FFB74D;color:#E65100}
         .legend-item.li-M{background:#E8F5E9;border-color:#81C784;color:#2E7D32}
         .legend-item.li-N{background:var(--gray-50);border-color:var(--border);color:var(--gray-400)}
+        .legend-grid{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;flex:1}
+        .legend-item-wrap{display:flex;flex-direction:column;gap:3px;min-width:120px}
+        .legend-desc{font-size:.63rem;color:var(--gray-400);line-height:1.4;padding:0 2px;max-width:150px}
         .survey-progress{padding:10px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
         .prog-bar{flex:1;height:5px;background:var(--gray-100);border-radius:3px;overflow:hidden}
         .prog-fill{height:100%;background:var(--teal);border-radius:3px;transition:width .4s}
@@ -142,7 +145,7 @@
 
         /* PRINT */
         @media print{
-            #gdpr-page,.hdr,.step-bar,.survey-meta,.level-legend,.survey-progress,.survey-footer,.done-actions,.info-footer,.level-btns{display:none!important}
+            #gdpr-page,#instr-page,.hdr,.step-bar,.survey-meta,.level-legend,.survey-progress,.survey-footer,.done-actions,.info-footer,.level-btns{display:none!important}
             body{background:white}
             .wrap{padding:0;max-width:100%}
             .card,.dim-block,.done-card{box-shadow:none;border:1px solid #ccc}
@@ -203,6 +206,13 @@
         <h3>How can I access the survey results?</h3>
         <p>To receive information about the study's results, please contact Jennifer Valcke at <a href="mailto:jennifer.valcke@ki.se" style="color:var(--teal)">jennifer.valcke@ki.se</a>.</p>
       </div>
+      <div class="gdpr-divider"></div>
+      <div class="gdpr-section">
+        <h3>Consent to participate in the study</h3>
+        <p>I have received written information about the study and have had the opportunity to ask questions. I get to keep the written information.</p>
+        <p>I agree to participate in the study "Teaching for Tomorrow: Equipping Teachers for Agenda 2030 Integration"</p>
+        <p>I consent to data about me being processed in the manner described above.</p>
+      </div>
       <div class="gdpr-consent">
         <input type="checkbox" id="gdpr-checkbox" onchange="toggleGdprBtn()">
         <label for="gdpr-checkbox">I have read and understood the information above regarding data protection and consent.</label>
@@ -210,6 +220,68 @@
     </div>
     <div class="gdpr-footer">
       <button class="gdpr-btn" id="gdpr-proceed-btn" onclick="acceptGdpr()">Continue to Curriculum Mapping →</button>
+    </div>
+  </div>
+</div>
+
+<!-- INSTRUCTIONS PAGE -->
+<div id="instr-page" style="display:none;min-height:100vh;background:#F0F2F6;align-items:flex-start;justify-content:center;padding:24px 16px">
+  <div class="gdpr-card" style="max-width:760px">
+    <div class="gdpr-header">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--teal-light)" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+      <h1>Instructions for Course Leaders — <em>How to Complete the Curriculum Mapping Tool</em></h1>
+    </div>
+    <div class="gdpr-body">
+      <div class="gdpr-section">
+        <p>Thank you for taking the time to map out your course against SDG-related competences! Your responses will help your programme leaders understand how SDG‑related competences are currently addressed across the biomedical programmes, identify strengths and gaps, and guide the future development of your teaching.</p>
+        <p style="margin-top:10px">This mapping exercise is part of KI's commitment to preparing future biomedical professionals to address the global challenges described in the 2030 Agenda for Sustainable Development. It also responds to the Swedish Higher Education Act, which requires higher education institutions to ensure graduates have the knowledge and skills needed to contribute to sustainable development. The seven SDG‑related competencies used in this tool are based on key competencies for sustainability defined by UNESCO and have been adapted for the biomedical context at KI.</p>
+      </div>
+      <div class="gdpr-divider"></div>
+      <div class="gdpr-section">
+        <h3>Purpose of the mapping</h3>
+        <p>This mapping aims to:</p>
+        <ul>
+          <li>Identify where SDG‑related competences are already addressed in your course.</li>
+          <li>Understand to what extent students are introduced to, develop, or demonstrate mastery of these competences.</li>
+          <li>Gather information that will support the development of: mapping your programme's curriculum, revised and future intended learning outcomes (ILOs), improved teaching and learning activities, aligned assessment and feedback approaches, and tailored resources for your needs.</li>
+          <li>Your responses will be anonymised and integrated into a cross‑programme overview to be shared at the workshop on 16th April 2026.</li>
+        </ul>
+      </div>
+      <div class="gdpr-divider"></div>
+      <div class="gdpr-section">
+        <h3>Time commitment and anonymity</h3>
+        <p>Completing the mapping takes approximately 45–60 minutes per course. All responses are anonymous — we only collect information about your course, and no personal data will be gathered or stored. We greatly appreciate your honest and thoughtful input.</p>
+      </div>
+      <div class="gdpr-divider"></div>
+      <div class="gdpr-section">
+        <h3>How to complete the mapping tool</h3>
+        <p><strong>1. Provide basic course information</strong><br>Fill in the fields for: Programme(s) the course belongs to, Course name, Course code, Number of credits, and the semester your course is taught in.</p>
+        <p style="margin-top:12px"><strong>2. Determine whether your course addresses each SDG‑related competence</strong><br>For each of the seven competences, review your course content, ILOs, teaching activities and assessments. Decide whether the competence is:</p>
+        <ul>
+          <li><strong>I = Introductory</strong> — students recall, describe, explain or recognise the competence</li>
+          <li><strong>A = Advanced</strong> — students apply, analyse, compare, or integrate the competence</li>
+          <li><strong>M = Mastery</strong> — students evaluate, make judgements, propose solutions, or create outputs</li>
+          <li><strong>N = Not applicable</strong> — the competence is not addressed in your course</li>
+        </ul>
+        <p style="margin-top:8px">Please note that each field is mandatory. If you select <strong>I, A or M</strong>, you will need to complete the details in Step 3. If you select <strong>N</strong>, please specify whether: the competence genuinely does not apply to your course, you think it may apply but are unsure how to integrate it, or you do not yet feel confident in understanding what the competence means.</p>
+        <p style="margin-top:12px"><strong>3. Describe how the competence is addressed in your course</strong><br>For every competence marked I, A, or M, please provide:</p>
+        <ul>
+          <li><strong>a. Course content</strong> — list the specific topics that relate to the competence.</li>
+          <li><strong>b. Intended learning outcomes (ILOs)</strong> — insert the ILOs that connect to this competence (from your course syllabus).</li>
+          <li><strong>c. Teaching &amp; learning activities (TLAs)</strong> — select one or more relevant activities, e.g. case study, project, debate, discussion, group work, lab, lecture, oral presentation, thesis, written work.</li>
+          <li><strong>d. Assessment &amp; feedback activities</strong> — describe how students demonstrate this competence, e.g. written assignment, lab report, oral presentation, project submission, problem‑solving task, reflective narrative, portfolio element.</li>
+          <li><strong>e. Assessment &amp; feedback approach</strong> — describe how students receive and engage with feedback on this competence. This may include formative feedback during learning activities, summative feedback on assessed work, peer review, or self-assessment prompts that encourage reflection on their developing competence.</li>
+        </ul>
+        <p style="margin-top:12px"><strong>4. Final check before submitting</strong><br>Please ensure that: each competence has an I / A / M / N value; all competences marked I, A or M include content, ILOs, TLAs, and assessment examples; and you have included any relevant teaching or assessment approaches not listed.</p>
+      </div>
+      <div class="gdpr-divider"></div>
+      <div class="gdpr-section">
+        <p>Your input is essential for improving educational quality and supporting KI's strategic aim to develop graduates who are equipped to address the urgent health and sustainability challenges of our time. Should you need any assistance, please contact <a href="mailto:jennifer.valcke@ki.se" style="color:var(--teal)">Jennifer Valcke</a> directly.</p>
+        <p style="margin-top:8px;font-size:.8rem;color:var(--gray-400)">Jennifer Valcke, Rachel Fisher, Tobias Alfvèn, Susanne Guidetti, Helle Mölsted Alvesson, Nina Viberg &amp; Giulia Gaudenzi<br>2026 KI Pedagogical Fund project: "Teaching for Tomorrow: Equipping Teachers for Agenda 2030 Integration"</p>
+      </div>
+    </div>
+    <div class="gdpr-footer">
+      <button class="gdpr-btn ready" onclick="acceptInstructions()">Continue to Mapping →</button>
     </div>
   </div>
 </div>
@@ -293,10 +365,24 @@
       <div class="survey-meta" id="survey-meta"></div>
       <div class="level-legend">
         <span class="level-legend-label">Level key:</span>
-        <span class="legend-item li-I"><strong>I</strong> &#8212; Introductory</span>
-        <span class="legend-item li-A"><strong>A</strong> &#8212; Advanced</span>
-        <span class="legend-item li-M"><strong>M</strong> &#8212; Mastery</span>
-        <span class="legend-item li-N"><strong>N</strong> &#8212; Not Applicable</span>
+        <div class="legend-grid">
+          <div class="legend-item-wrap">
+            <span class="legend-item li-I"><strong>I</strong> &#8212; Introductory</span>
+            <span class="legend-desc">Students recall, describe, explain or recognise the competence</span>
+          </div>
+          <div class="legend-item-wrap">
+            <span class="legend-item li-A"><strong>A</strong> &#8212; Advanced</span>
+            <span class="legend-desc">Students apply, analyse, compare, or integrate the competence</span>
+          </div>
+          <div class="legend-item-wrap">
+            <span class="legend-item li-M"><strong>M</strong> &#8212; Mastery</span>
+            <span class="legend-desc">Students evaluate, make judgements, propose solutions, or create outputs</span>
+          </div>
+          <div class="legend-item-wrap">
+            <span class="legend-item li-N"><strong>N</strong> &#8212; Not Applicable</span>
+            <span class="legend-desc">The competence is not addressed in your course</span>
+          </div>
+        </div>
       </div>
       <div class="survey-progress">
         <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
@@ -346,6 +432,10 @@ function toggleGdprBtn(){
 function acceptGdpr(){
   if(!document.getElementById('gdpr-checkbox').checked)return;
   document.getElementById('gdpr-page').style.display='none';
+  document.getElementById('instr-page').style.display='flex';
+}
+function acceptInstructions(){
+  document.getElementById('instr-page').style.display='none';
   document.getElementById('main-hdr').style.display='block';
   document.getElementById('main-wrap').style.display='block';
   showPage('info');
